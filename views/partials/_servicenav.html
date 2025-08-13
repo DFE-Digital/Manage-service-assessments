@@ -1,0 +1,62 @@
+<section aria-label="Service information" class="govuk-service-navigation"
+  data-module="govuk-service-navigation">
+  <div class="govuk-width-container">
+    <div class="govuk-service-navigation__container">
+      <span class="govuk-service-navigation__service-name">
+        <a href="/" class="govuk-service-navigation__link">
+          {{ serviceName }}
+        </a>
+      </span>
+      <nav aria-label="Menu" class="govuk-service-navigation__wrapper">
+        <button type="button" class="govuk-service-navigation__toggle govuk-js-service-navigation-toggle" aria-controls="navigation" hidden>
+          Menu
+        </button>
+        <ul class="govuk-service-navigation__list" id="navigation">
+          <li class="govuk-service-navigation__item">
+            <a class="govuk-service-navigation__link" href="/manage">
+              Manage
+            </a>
+          </li>
+          <li class="govuk-service-navigation__item">
+            <a class="govuk-service-navigation__link" href="/book">
+              Book
+            </a>
+          </li>
+        {% if user %}
+         
+          {% if user.isSuperAdmin or user.isOrganisationAdmin %}
+          <li class="govuk-service-navigation__item">
+            <a class="govuk-service-navigation__link" href="/admin">
+              Admin
+            </a>
+          </li>
+        
+          {% endif %}
+          {% if user %}
+          <li class="govuk-service-navigation__item">
+            <a class="govuk-service-navigation__link" href="/account">
+              Your account
+            </a>
+          </li>
+          
+          {% endif %}
+         
+        </ul>
+        {% else %}
+        <ul class="govuk-service-navigation__list" id="navigation">
+            <li class="govuk-service-navigation__item">
+              <a class="govuk-service-navigation__link" href="#">
+                Get started
+              </a>
+            </li>
+            <li class="govuk-service-navigation__item">
+              <a class="govuk-service-navigation__link" href="/auth/sign-in">
+                Sign in
+              </a>
+            </li>
+        {% endif %}
+      </ul>
+      </nav>
+    </div>
+  </div>
+</section>

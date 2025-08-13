@@ -1,0 +1,107 @@
+{% extends "layouts/layout.html" %}
+
+{% block pageTitle %}Cross-Government Assessors{% endblock %}
+
+{% block content %}
+    <div class="govuk-grid-row">
+      <div class="govuk-grid-column-one-quarter">
+        <nav class="dfe-vertical-nav govuk-!-margin-top-2" aria-label="Admin navigation">
+          {% if user.isSuperAdmin %}
+            <h2 class="dfe-vertical-nav__section-header">Menu</h2>
+            <ul class="dfe-vertical-nav__section">
+              <li class="dfe-vertical-nav__section-item">
+                <a class="dfe-vertical-nav__link" href="/admin/organisations">
+                  <span class="dfe-vertical-nav__link-text">Organisations</span>
+                </a>
+              </li>
+              <li class="dfe-vertical-nav__section-item dfe-vertical-nav__section-item--current">
+                <a class="dfe-vertical-nav__link" href="/admin/assessors">
+                  <span class="dfe-vertical-nav__link-text">Assessors</span>
+                </a>
+              </li>
+              <li class="dfe-vertical-nav__section-item">
+                <a class="dfe-vertical-nav__link" href="/admin/settings">
+                  <span class="dfe-vertical-nav__link-text">Settings</span>
+                </a>
+              </li>
+            </ul>
+          {% endif %}
+          {% if user.isOrganisationAdmin %}
+            <h2 class="dfe-vertical-nav__section-header">Organisation admin</h2>
+            <ul class="dfe-vertical-nav__section">
+              <li class="dfe-vertical-nav__section-item">
+                <a class="dfe-vertical-nav__link" href="/admin/assessments">
+                  <span class="dfe-vertical-nav__link-text">Assessments</span>
+                </a>
+              </li>
+              <li class="dfe-vertical-nav__section-item">
+                <a class="dfe-vertical-nav__link" href="/admin/organisation/assessors">
+                  <span class="dfe-vertical-nav__link-text">Assessors</span>
+                </a>
+              </li>
+              <li class="dfe-vertical-nav__section-item">
+                <a class="dfe-vertical-nav__link" href="/admin/organisation/settings">
+                  <span class="dfe-vertical-nav__link-text">Settings</span>
+                </a>
+              </li>
+            </ul>
+          {% endif %}
+        </nav>
+      </div>
+      
+      <div class="govuk-grid-column-three-quarters">
+        <h1 class="govuk-heading-l">Cross-government assessors</h1>
+        
+        <p class="govuk-body">Assessors available for assessments across all government departments.</p>
+
+        {% if assessors and assessors.length > 0 %}
+          <div class="govuk-summary-card">
+            <div class="govuk-summary-card__title-wrapper">
+              <h2 class="govuk-summary-card__title">Available assessors</h2>
+            </div>
+            <div class="govuk-summary-card__content">
+              <table class="govuk-table">
+                <thead class="govuk-table__head">
+                  <tr class="govuk-table__row">
+                    <th scope="col" class="govuk-table__header">Name</th>
+                    <th scope="col" class="govuk-table__header">Department</th>
+                    <th scope="col" class="govuk-table__header">Roles</th>
+                  </tr>
+                </thead>
+                <tbody class="govuk-table__body">
+                  {% for assessor in assessors %}
+                    <tr class="govuk-table__row">
+                      <td class="govuk-table__cell"><a href="/admin/organisation/assessors/{{ assessor.id }}/edit" class="govuk-link">{{ assessor.first_name }} {{ assessor.last_name }}</a><br/><span class="govuk-body-s">{{ assessor.email }}</span></td>
+                     
+                      <td class="govuk-table__cell">{{ assessor.organisation_name }}</td>
+                      <td class="govuk-table__cell">
+                        {% if assessor.roles %}
+                        {{ assessor.roles }}
+                        {% else %}
+                        No roles assigned
+                        {% endif %}
+                      </td>
+                     
+                    </tr>
+                  {% endfor %}
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+         
+        {% else %}
+          <div class="govuk-summary-card">
+            <div class="govuk-summary-card__title-wrapper">
+              <h2 class="govuk-summary-card__title">No cross-government assessors</h2>
+            </div>
+            <div class="govuk-summary-card__content">
+              <p class="govuk-body">No assessors are currently marked as available for cross-government assessments.</p>
+              <p class="govuk-body">Organisation admins can mark their assessors as cross-government when adding or editing them.</p>
+            </div>
+          </div>
+        {% endif %}
+      </div>
+    </div>
+
+{% endblock %}

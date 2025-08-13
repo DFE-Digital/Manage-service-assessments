@@ -1,0 +1,156 @@
+{% extends "layouts/layout.html" %}
+
+{% block pageTitle %}{{ organisation.name }} - Organisation Details{% endblock %}
+
+{% block content %}
+
+
+
+<div class="govuk-grid-row">
+  <div class="govuk-grid-column-one-quarter">
+
+    <nav class="dfe-vertical-nav govuk-!-margin-top-2" aria-label="Admin navigation">
+      <a href="/admin/organisations" class="govuk-back-link govuk-!-margin-top-0 govuk-!-margin-bottom-9">Back to organisations</a>
+      
+      {% if user.isSuperAdmin %}
+        <h2 class="dfe-vertical-nav__section-header">Menu</h2>
+        <ul class="dfe-vertical-nav__section">
+          <li class="dfe-vertical-nav__section-item dfe-vertical-nav__section-item--current">
+            <a class="dfe-vertical-nav__link" href="/admin/organisations">
+              <span class="dfe-vertical-nav__link-text">Organisations</span>
+            </a>
+          </li>
+          <li class="dfe-vertical-nav__section-item">
+            <a class="dfe-vertical-nav__link" href="/admin/assessors">
+              <span class="dfe-vertical-nav__link-text">Assessors</span>
+            </a>
+          </li>
+          <li class="dfe-vertical-nav__section-item">
+                            <a class="dfe-vertical-nav__link" href="/admin/organisation/settings">
+                  <span class="dfe-vertical-nav__link-text">Settings</span>
+                </a>
+          </li>
+        </ul>
+      {% endif %}
+      {% if user.isOrganisationAdmin %}
+        <h2 class="dfe-vertical-nav__section-header">Organisation admin</h2>
+        <ul class="dfe-vertical-nav__section">
+          <li class="dfe-vertical-nav__section-item">
+            <a class="dfe-vertical-nav__link" href="/admin/assessments">
+              <span class="dfe-vertical-nav__link-text">Assessments</span>
+            </a>
+          </li>
+          <li class="dfe-vertical-nav__section-item">
+            <a class="dfe-vertical-nav__link" href="/admin/organisation/assessors">
+              <span class="dfe-vertical-nav__link-text">Assessors</span>
+            </a>
+          </li>
+          <li class="dfe-vertical-nav__section-item">
+                            <a class="dfe-vertical-nav__link" href="/admin/organisation/settings">
+                  <span class="dfe-vertical-nav__link-text">Settings</span>
+                </a>
+          </li>
+        </ul>
+      {% endif %}
+      
+      <h2 class="dfe-vertical-nav__section-header">{{ organisation.name }}</h2>
+      <ul class="dfe-vertical-nav__section">
+        <li class="dfe-vertical-nav__section-item dfe-vertical-nav__section-item--current">
+          <a class="dfe-vertical-nav__link" href="/admin/organisations/{{ organisation.id }}">Overview</a>
+        </li>
+        <li class="dfe-vertical-nav__section-item">
+          <a class="dfe-vertical-nav__link" href="/admin/organisations/{{ organisation.id }}/domains">Domains</a>
+        </li>
+        <li class="dfe-vertical-nav__section-item">
+          <a class="dfe-vertical-nav__link" href="/admin/organisations/{{ organisation.id }}/admins">Admins</a>
+        </li>
+      </ul>
+    </nav>
+
+  </div>
+  <div class="govuk-grid-column-three-quarters">
+    <h1 class="govuk-heading-l">{{ organisation.name }}</h1>
+
+
+
+
+
+
+
+         <!-- Domains Summary -->
+     <div class="govuk-summary-card">
+       <div class="govuk-summary-card__title-wrapper">
+         <h2 class="govuk-summary-card__title">Email domains</h2>
+         <ul class="govuk-summary-card__actions">
+           <li class="govuk-summary-card__action">
+             <a class="govuk-link" href="/admin/organisations/{{ organisation.id }}/domains">Manage domains</a>
+           </li>
+         </ul>
+       </div>
+       <div class="govuk-summary-card__content">
+         <p class="govuk-body">Domains that allow users to automatically join this organisation.</p>
+         {% if domains and domains.length > 0 %}
+         <table class="govuk-table">
+           <thead class="govuk-table__head">
+             <tr class="govuk-table__row">
+               <th scope="col" class="govuk-table__header">Domain</th>
+             </tr>
+           </thead>
+           <tbody class="govuk-table__body">
+             {% for domain in domains %}
+             <tr class="govuk-table__row">
+               <td class="govuk-table__cell">{{ domain.domain }}</td>
+             </tr>
+             {% endfor %}
+           </tbody>
+         </table>
+         {% else %}
+         <p class="govuk-body">No domains configured for this organisation.</p>
+         {% endif %}
+       </div>
+     </div>
+
+    <!-- Organisation Admins -->
+    <div class="govuk-summary-card">
+      <div class="govuk-summary-card__title-wrapper">
+        <h2 class="govuk-summary-card__title">Organisation admins</h2>
+        <ul class="govuk-summary-card__actions">
+          <li class="govuk-summary-card__action">
+            <a class="govuk-link" href="/admin/organisations/{{ organisation.id }}/admins">Manage admins</a>
+          </li>
+        </ul>
+      </div>
+      <div class="govuk-summary-card__content">
+        {% if admins and admins.length > 0 %}
+        <table class="govuk-table">
+          <thead class="govuk-table__head">
+            <tr class="govuk-table__row">
+              <th scope="col" class="govuk-table__header">Name</th>
+              <th scope="col" class="govuk-table__header">Email</th>
+            </tr>
+          </thead>
+          <tbody class="govuk-table__body">
+            {% for admin in admins %}
+            <tr class="govuk-table__row">
+              <td class="govuk-table__cell">{{ admin.first_name }} {{ admin.last_name }}</td>
+              <td class="govuk-table__cell">{{ admin.email }}</td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+        {% else %}
+        <p class="govuk-body">No admins assigned to this organisation.</p>
+        {% endif %}
+      </div>
+    </div>
+
+
+
+  
+
+  </div>
+
+
+</div>
+
+{% endblock %}

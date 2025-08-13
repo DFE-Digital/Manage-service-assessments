@@ -1,0 +1,280 @@
+{% extends "layouts/layout.html" %}
+
+{% block pageTitle %}Admin Settings{% endblock %}
+
+{% block head %}
+<style>
+  .connection-status {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+  }
+  
+  .connection-status--success {
+    color: #00703c;
+  }
+  
+  .connection-status--error {
+    color: #d4351c;
+  }
+  
+  .connection-status-icon {
+    width: 16px;
+    height: 16px;
+    border-radius: 50%;
+  }
+  
+  .connection-status-icon--success {
+    background-color: #00703c;
+  }
+  
+  .connection-status-icon--error {
+    background-color: #d4351c;
+  }
+  
+  .modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+    display: none;
+    z-index: 1000;
+  }
+  
+  .modal-content {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background-color: white;
+    padding: 20px;
+    border-radius: 4px;
+    max-width: 600px;
+    width: 90%;
+    max-height: 80vh;
+    overflow-y: auto;
+  }
+</style>
+{% endblock %}
+
+{% block content %}
+    <div class="govuk-grid-row">
+      <div class="govuk-grid-column-one-quarter">
+        <nav class="dfe-vertical-nav govuk-!-margin-top-2" aria-label="Admin navigation">
+          {% if user.isSuperAdmin %}
+            <h2 class="dfe-vertical-nav__section-header">Menu</h2>
+            <ul class="dfe-vertical-nav__section">
+              <li class="dfe-vertical-nav__section-item">
+                <a class="dfe-vertical-nav__link" href="/admin/organisations">
+                  <span class="dfe-vertical-nav__link-text">Organisations</span>
+                </a>
+              </li>
+              <li class="dfe-vertical-nav__section-item">
+                <a class="dfe-vertical-nav__link" href="/admin/assessors">
+                  <span class="dfe-vertical-nav__link-text">Assessors</span>
+                </a>
+              </li>
+              <li class="dfe-vertical-nav__section-item dfe-vertical-nav__section-item--current">
+                <a class="dfe-vertical-nav__link" href="/admin/settings">
+                  <span class="dfe-vertical-nav__link-text">Settings</span>
+                </a>
+              </li>
+            </ul>
+          {% endif %}
+          {% if user.isOrganisationAdmin %}
+            <h2 class="dfe-vertical-nav__section-header">Organisation admin</h2>
+            <ul class="dfe-vertical-nav__section">
+              <li class="dfe-vertical-nav__section-item">
+                <a class="dfe-vertical-nav__link" href="/admin/assessments">
+                  <span class="dfe-vertical-nav__link-text">Assessments</span>
+                </a>
+              </li>
+              <li class="dfe-vertical-nav__section-item">
+                <a class="dfe-vertical-nav__link" href="/admin/organisation/assessors">
+                  <span class="dfe-vertical-nav__link-text">Assessors</span>
+                </a>
+              </li>
+              <li class="dfe-vertical-nav__section-item">
+                <a class="dfe-vertical-nav__link" href="/admin/organisation/settings">
+                  <span class="dfe-vertical-nav__link-text">Settings</span>
+                </a>
+              </li>
+            </ul>
+          {% endif %}
+        </nav>
+      </div>
+      
+      <div class="govuk-grid-column-three-quarters">
+        <h1 class="govuk-heading-l">Settings</h1>
+
+        {% include "partials/_error-summary.html" %}
+
+        <p class="govuk-body">Manage global service standards that apply across all government departments.</p>
+
+        <!-- Service Standards Section -->
+        <div class="govuk-summary-card">
+          <div class="govuk-summary-card__title-wrapper">
+            <h2 class="govuk-summary-card__title">GOV.UK Service Standards</h2>
+            <ul class="govuk-summary-card__actions">
+              <li class="govuk-summary-card__action">
+                <a class="govuk-link" href="#" onclick="openModal('addStandardModal')">Add standard</a>
+              </li>
+            </ul>
+          </div>
+          <div class="govuk-summary-card__content">
+            <p class="govuk-body">The 14 points every government service team must follow.</p>
+            {% if serviceStandards and serviceStandards.length > 0 %}
+              <table class="govuk-table">
+                <thead class="govuk-table__head">
+                  <tr class="govuk-table__row">
+                    <th scope="col" class="govuk-table__header">Number</th>
+                    <th scope="col" class="govuk-table__header">Title</th>
+                    <th scope="col" class="govuk-table__header">Version</th>
+                    <th scope="col" class="govuk-table__header">Actions</th>
+                  </tr>
+                </thead>
+                <tbody class="govuk-table__body">
+                  {% for standard in serviceStandards %}
+                    <tr class="govuk-table__row">
+                      <td class="govuk-table__cell">{{ standard.number }}</td>
+                      <td class="govuk-table__cell">
+                        <a href="{{ standard.url }}" class="govuk-link" rel="noopener noreferrer">{{ standard.title }}</a>
+                      </td>
+                      <td class="govuk-table__cell">v{{ standard.version }}</td>
+                      <td class="govuk-table__cell">
+                        <a href="#" class="govuk-link" onclick="openEditStandardModal({{ standard.id }}, '{{ standard.title }}', '{{ standard.description }}', '{{ standard.url }}')">Edit</a>
+                      </td>
+                    </tr>
+                  {% endfor %}
+                </tbody>
+              </table>
+            {% else %}
+              <p class="govuk-body">No service standards configured.</p>
+            {% endif %}
+          </div>
+        </div>
+      </div>
+    </div>
+
+<!-- Add Service Standard Modal -->
+<div id="addStandardModal" class="modal" role="dialog" aria-labelledby="addStandardModalTitle" aria-hidden="true">
+  <div class="modal-content">
+    <h2 id="addStandardModalTitle" class="govuk-heading-m">Add Service Standard</h2>
+    <form method="POST" action="/admin/settings/service-standards">
+      <input type="hidden" name="_csrf" value="{{ csrfToken }}">
+      
+      <div class="govuk-form-group">
+        <label class="govuk-label" for="standard-number">Standard Number</label>
+        <input class="govuk-input govuk-input--width-3" id="standard-number" name="number" type="number" min="1" max="99" required>
+      </div>
+      
+      <div class="govuk-form-group">
+        <label class="govuk-label" for="standard-title">Title</label>
+        <input class="govuk-input" id="standard-title" name="title" type="text" required>
+      </div>
+      
+      <div class="govuk-form-group">
+        <label class="govuk-label" for="standard-description">Description</label>
+        <textarea class="govuk-textarea" id="standard-description" name="description" rows="4" required></textarea>
+      </div>
+      
+      <div class="govuk-form-group">
+        <label class="govuk-label" for="standard-url">URL</label>
+        <input class="govuk-input" id="standard-url" name="url" type="url" required>
+      </div>
+      
+      <div class="govuk-button-group">
+        <button type="submit" class="govuk-button">Add Standard</button>
+        <button type="button" class="govuk-button govuk-button--secondary" onclick="closeModal('addStandardModal')">Cancel</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- Edit Service Standard Modal -->
+<div id="editStandardModal" class="modal" role="dialog" aria-labelledby="editStandardModalTitle" aria-hidden="true">
+  <div class="modal-content">
+    <h2 id="editStandardModalTitle" class="govuk-heading-m">Edit Service Standard</h2>
+    <form method="POST" id="editStandardForm">
+      <input type="hidden" name="_csrf" value="{{ csrfToken }}">
+      
+      <div class="govuk-form-group">
+        <label class="govuk-label" for="edit-standard-title">Title</label>
+        <input class="govuk-input" id="edit-standard-title" name="title" type="text" required>
+      </div>
+      
+      <div class="govuk-form-group">
+        <label class="govuk-label" for="edit-standard-description">Description</label>
+        <textarea class="govuk-textarea" id="edit-standard-description" name="description" rows="4" required></textarea>
+      </div>
+      
+      <div class="govuk-form-group">
+        <label class="govuk-label" for="edit-standard-url">URL</label>
+        <input class="govuk-input" id="edit-standard-url" name="url" type="url" required>
+      </div>
+      
+      <div class="govuk-button-group">
+        <button type="submit" class="govuk-button">Update Standard</button>
+        <button type="button" class="govuk-button govuk-button--secondary" onclick="closeModal('editStandardModal')">Cancel</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+
+
+<script>
+function openModal(modalId) {
+  const modal = document.getElementById(modalId);
+  modal.style.display = 'block';
+  modal.setAttribute('aria-hidden', 'false');
+  
+  // Focus the first input in the modal
+  const firstInput = modal.querySelector('input, textarea, button');
+  if (firstInput) {
+    firstInput.focus();
+  }
+}
+
+function closeModal(modalId) {
+  const modal = document.getElementById(modalId);
+  modal.style.display = 'none';
+  modal.setAttribute('aria-hidden', 'true');
+}
+
+function openEditStandardModal(id, title, description, url) {
+  document.getElementById('editStandardForm').action = `/admin/settings/service-standards/${id}`;
+  document.getElementById('edit-standard-title').value = title;
+  document.getElementById('edit-standard-description').value = description;
+  document.getElementById('edit-standard-url').value = url;
+  openModal('editStandardModal');
+}
+
+
+
+// Close modal on escape key
+document.addEventListener('keydown', function(event) {
+  if (event.key === 'Escape') {
+    const modals = document.querySelectorAll('.modal');
+    modals.forEach(modal => {
+      if (modal.style.display === 'block') {
+        closeModal(modal.id);
+      }
+    });
+  }
+});
+
+// Close modal when clicking outside
+document.addEventListener('click', function(event) {
+  const modals = document.querySelectorAll('.modal');
+  modals.forEach(modal => {
+    if (event.target === modal) {
+      closeModal(modal.id);
+    }
+  });
+});
+</script>
+
+{% endblock %}

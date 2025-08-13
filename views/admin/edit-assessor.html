@@ -1,0 +1,113 @@
+{% extends "layouts/layout.html" %}
+
+{% block pageTitle %}Edit Assessor{% endblock %}
+
+{% block content %}
+<div class="govuk-width-container">
+  <main class="govuk-main-wrapper" id="main-content" role="main">
+    <div class="govuk-grid-row">
+      <div class="govuk-grid-column-two-thirds">
+        <h1 class="govuk-heading-xl">Edit Assessor</h1>
+        
+        <form method="post">
+          <input type="hidden" name="_csrf" value="{{ csrfToken }}">
+          <div class="govuk-form-group">
+            <label class="govuk-label" for="email">
+              Email address
+            </label>
+            <input class="govuk-input" id="email" type="email" value="{{ assessor.email }}" disabled>
+            <div class="govuk-hint">Email address cannot be changed</div>
+          </div>
+
+          <div class="govuk-form-group">
+            <label class="govuk-label" for="name">
+              Name
+            </label>
+            <input class="govuk-input" id="name" type="text" value="{{ assessor.first_name }} {{ assessor.last_name }}" disabled>
+            <div class="govuk-hint">Name cannot be changed</div>
+          </div>
+
+          <div class="govuk-form-group">
+            <label class="govuk-label" for="status">
+              Status
+            </label>
+            <select class="govuk-select" id="status" name="status">
+              <option value="active" {% if assessor.status == 'active' %}selected{% endif %}>Active</option>
+              <option value="inactive" {% if assessor.status == 'inactive' %}selected{% endif %}>Inactive</option>
+            </select>
+          </div>
+
+          <div class="govuk-form-group">
+            <fieldset class="govuk-fieldset">
+              <legend class="govuk-fieldset__legend govuk-fieldset__legend--m">
+                Assessor settings
+              </legend>
+              
+              <div class="govuk-checkboxes" data-module="govuk-checkboxes">
+                <div class="govuk-checkboxes__item">
+                  <input class="govuk-checkboxes__input" id="cross_gov_assessor" name="cross_gov_assessor" type="checkbox" value="1" {% if assessor.cross_gov_assessor %}checked{% endif %}>
+                  <label class="govuk-label govuk-checkboxes__label" for="cross_gov_assessor">
+                    Cross-government assessor
+                  </label>
+                </div>
+              </div>
+            </fieldset>
+          </div>
+
+          <div class="govuk-form-group">
+            <label class="govuk-label" for="roles">
+              Assessor roles
+            </label>
+            <div class="govuk-hint">
+              Select all that apply
+            </div>
+            <div class="govuk-checkboxes" data-module="govuk-checkboxes">
+              <div class="govuk-checkboxes__item">
+                <input class="govuk-checkboxes__input" id="role_lead" name="roles" type="checkbox" value="Lead" {% if 'Lead' in roles %}checked{% endif %}>
+                <label class="govuk-label govuk-checkboxes__label" for="role_lead">Lead</label>
+              </div>
+              <div class="govuk-checkboxes__item">
+                <input class="govuk-checkboxes__input" id="role_design" name="roles" type="checkbox" value="Design" {% if 'Design' in roles %}checked{% endif %}>
+                <label class="govuk-label govuk-checkboxes__label" for="role_design">Design</label>
+              </div>
+              <div class="govuk-checkboxes__item">
+                <input class="govuk-checkboxes__input" id="role_accessibility" name="roles" type="checkbox" value="Accessibility" {% if 'Accessibility' in roles %}checked{% endif %}>
+                <label class="govuk-label govuk-checkboxes__label" for="role_accessibility">Accessibility</label>
+              </div>
+              <div class="govuk-checkboxes__item">
+                <input class="govuk-checkboxes__input" id="role_content" name="roles" type="checkbox" value="Content design" {% if 'Content design' in roles %}checked{% endif %}>
+                <label class="govuk-label govuk-checkboxes__label" for="role_content">Content design</label>
+              </div>
+              <div class="govuk-checkboxes__item">
+                <input class="govuk-checkboxes__input" id="role_service" name="roles" type="checkbox" value="Service design" {% if 'Service design' in roles %}checked{% endif %}>
+                <label class="govuk-label govuk-checkboxes__label" for="role_service">Service design</label>
+              </div>
+              <div class="govuk-checkboxes__item">
+                <input class="govuk-checkboxes__input" id="role_interaction" name="roles" type="checkbox" value="Interaction design" {% if 'Interaction design' in roles %}checked{% endif %}>
+                <label class="govuk-label govuk-checkboxes__label" for="role_interaction">Interaction design</label>
+              </div>
+              <div class="govuk-checkboxes__item">
+                <input class="govuk-checkboxes__input" id="role_product" name="roles" type="checkbox" value="Product" {% if 'Product' in roles %}checked{% endif %}>
+                <label class="govuk-label govuk-checkboxes__label" for="role_product">Product</label>
+              </div>
+              <div class="govuk-checkboxes__item">
+                <input class="govuk-checkboxes__input" id="role_delivery" name="roles" type="checkbox" value="Delivery" {% if 'Delivery' in roles %}checked{% endif %}>
+                <label class="govuk-label govuk-checkboxes__label" for="role_delivery">Delivery</label>
+              </div>
+              <div class="govuk-checkboxes__item">
+                <input class="govuk-checkboxes__input" id="role_tech" name="roles" type="checkbox" value="Tech" {% if 'Tech' in roles %}checked{% endif %}>
+                <label class="govuk-label govuk-checkboxes__label" for="role_tech">Tech</label>
+              </div>
+            </div>
+          </div>
+
+          <div class="govuk-button-group">
+            <button type="submit" class="govuk-button">Update assessor</button>
+            <a href="/admin/organisation/assessors" class="govuk-button govuk-button--secondary">Cancel</a>
+          </div>
+        </form>
+      </div>
+    </div>
+  </main>
+</div>
+{% endblock %}

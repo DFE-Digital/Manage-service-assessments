@@ -1,0 +1,245 @@
+{% extends "layouts/layout.html" %}
+
+{% block pageTitle %}Admin Dashboard{% endblock %}
+
+{% block content %}
+    <div class="govuk-grid-row">
+      <div class="govuk-grid-column-one-quarter">
+        <nav class="dfe-vertical-nav govuk-!-margin-top-2" aria-label="Admin navigation">
+          {% if user.isSuperAdmin %}
+            <h2 class="dfe-vertical-nav__section-header">Menu</h2>
+            <ul class="dfe-vertical-nav__section">
+              <li class="dfe-vertical-nav__section-item">
+                <a class="dfe-vertical-nav__link" href="/admin/organisations">
+                  <span class="dfe-vertical-nav__link-text">Organisations</span>
+                </a>
+              </li>
+              <li class="dfe-vertical-nav__section-item">
+                <a class="dfe-vertical-nav__link" href="/admin/assessors">
+                  <span class="dfe-vertical-nav__link-text">Assessors</span>
+                </a>
+              </li>
+              <li class="dfe-vertical-nav__section-item">
+                <a class="dfe-vertical-nav__link" href="/admin/organisation/settings">
+                  <span class="dfe-vertical-nav__link-text">Settings</span>
+                </a>
+              </li>
+            </ul>
+          {% endif %}
+          {% if user.isOrganisationAdmin %}
+            <h2 class="dfe-vertical-nav__section-header">Organisation admin</h2>
+            <ul class="dfe-vertical-nav__section">
+              <li class="dfe-vertical-nav__section-item">
+                <a class="dfe-vertical-nav__link" href="/admin/assessments">
+                  <span class="dfe-vertical-nav__link-text">Assessments</span>
+                </a>
+              </li>
+              <li class="dfe-vertical-nav__section-item">
+                <a class="dfe-vertical-nav__link" href="/admin/organisation/assessors">
+                  <span class="dfe-vertical-nav__link-text">Assessors</span>
+                </a>
+              </li>
+              <li class="dfe-vertical-nav__section-item">
+                <a class="dfe-vertical-nav__link" href="/admin/organisation/settings">
+                  <span class="dfe-vertical-nav__link-text">Settings</span>
+                </a>
+              </li>
+            </ul>
+          {% endif %}
+        </nav>
+      </div>
+      
+      <div class="govuk-grid-column-three-quarters">
+        <h1 class="govuk-heading-l">
+         Admin
+        </h1>
+
+        {% if user.isSuperAdmin %}
+          <!-- Super Admin Dashboard Content -->
+          <div class="govuk-grid-row">
+            <div class="govuk-grid-column-one-half">
+              <div class="govuk-summary-card">
+                <div class="govuk-summary-card__title-wrapper">
+                  <h2 class="govuk-summary-card__title">
+                    <a class="govuk-link" href="/admin/organisations">Organisations</a>
+                  </h2>
+                </div>
+                <div class="govuk-summary-card__content">
+                  <p class="govuk-body">Manage all government organisations, their domains, and administrators.</p>
+                  <ul class="govuk-list">
+                    <li><a href="/admin/organisations" class="govuk-link">View all organisations</a></li>
+                    <li><a href="/admin/organisations/add" class="govuk-link">Add new organisation</a></li>
+                  </ul>
+                </div>
+              </div>
+            </div>
+            
+            <div class="govuk-grid-column-one-half">
+              <div class="govuk-summary-card">
+                <div class="govuk-summary-card__title-wrapper">
+                  <h2 class="govuk-summary-card__title">
+                    <a class="govuk-link" href="/admin/assessors">Cross-Government Assessors</a>
+                  </h2>
+                </div>
+                <div class="govuk-summary-card__content">
+                  <p class="govuk-body">View and manage assessors available across all government departments.</p>
+                  <ul class="govuk-list">
+                    <li><a href="/admin/assessors" class="govuk-link">View all assessors</a></li>
+                    <li><a href="/admin/cross-gov-assessors" class="govuk-link">Cross-government list</a></li>
+                  </ul>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="govuk-grid-row">
+            <div class="govuk-grid-column-one-half">
+              <div class="govuk-summary-card">
+                <div class="govuk-summary-card__title-wrapper">
+                  <h2 class="govuk-summary-card__title">
+                    <a class="govuk-link" href="/admin/settings">System Settings</a>
+                  </h2>
+                </div>
+                <div class="govuk-summary-card__content">
+                  <p class="govuk-body">Configure system-wide settings and preferences.</p>
+                  <ul class="govuk-list">
+                    <li><a href="/admin/settings" class="govuk-link">General settings</a></li>
+                    <li><a href="/admin/settings/notifications" class="govuk-link">Notification settings</a></li>
+                  </ul>
+                </div>
+              </div>
+            </div>
+            
+            <div class="govuk-grid-column-one-half">
+              <div class="govuk-summary-card">
+                <div class="govuk-summary-card__title-wrapper">
+                  <h2 class="govuk-summary-card__title">Quick Stats</h2>
+                </div>
+                <div class="govuk-summary-card__content">
+                  <dl class="govuk-summary-list govuk-summary-list--no-border">
+                    <div class="govuk-summary-list__row">
+                      <dt class="govuk-summary-list__key">Total Organisations</dt>
+                      <dd class="govuk-summary-list__value">{{ stats.totalOrganisations or '-' }}</dd>
+                    </div>
+                    <div class="govuk-summary-list__row">
+                      <dt class="govuk-summary-list__key">Cross-Gov Assessors</dt>
+                      <dd class="govuk-summary-list__value">{{ stats.crossGovAssessors or '-' }}</dd>
+                    </div>
+                    <div class="govuk-summary-list__row">
+                      <dt class="govuk-summary-list__key">Total Users</dt>
+                      <dd class="govuk-summary-list__value">{{ stats.totalUsers or '-' }}</dd>
+                    </div>
+                  </dl>
+                </div>
+              </div>
+            </div>
+          </div>
+
+        {% elif user.isOrganisationAdmin %}
+          <!-- Department Admin Dashboard Content -->
+          <div class="govuk-grid-row">
+            <div class="govuk-grid-column-one-half">
+              <div class="govuk-summary-card">
+                <div class="govuk-summary-card__title-wrapper">
+                  <h2 class="govuk-summary-card__title">
+                    <a class="govuk-link" href="/admin/assessments">Assessments</a>
+                  </h2>
+                </div>
+                <div class="govuk-summary-card__content">
+                  <p class="govuk-body">Book and manage service assessments for {{ user.organisation.name }}.</p>
+                  <ul class="govuk-list">
+                    <li><a href="/admin/assessments" class="govuk-link">View all assessments</a></li>
+                    <li><a href="/admin/assessments/book" class="govuk-link">Book new assessment</a></li>
+                  </ul>
+                </div>
+              </div>
+            </div>
+            
+            <div class="govuk-grid-column-one-half">
+              <div class="govuk-summary-card">
+                <div class="govuk-summary-card__title-wrapper">
+                  <h2 class="govuk-summary-card__title">
+                    <a class="govuk-link" href="/admin/organisation/assessors">Your Assessors</a>
+                  </h2>
+                </div>
+                <div class="govuk-summary-card__content">
+                  <p class="govuk-body">Manage assessors within {{ user.organisation.name }}.</p>
+                  <ul class="govuk-list">
+                    <li><a href="/admin/organisation/assessors" class="govuk-link">View assessors</a></li>
+                    <li><a href="/admin/organisation/assessors/add" class="govuk-link">Add new assessor</a></li>
+                  </ul>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="govuk-grid-row">
+            <div class="govuk-grid-column-one-half">
+              <div class="govuk-summary-card">
+                <div class="govuk-summary-card__title-wrapper">
+                  <h2 class="govuk-summary-card__title">
+                    <a class="govuk-link" href="/admin/settings">Settings</a>
+                  </h2>
+                </div>
+                <div class="govuk-summary-card__content">
+                  <p class="govuk-body">Configure settings for your organisation.</p>
+                  <ul class="govuk-list">
+                    <li><a href="/admin/settings" class="govuk-link">Organisation settings</a></li>
+                    <li><a href="/admin/settings/notifications" class="govuk-link">Notification preferences</a></li>
+                  </ul>
+                </div>
+              </div>
+            </div>
+            
+            <div class="govuk-grid-column-one-half">
+              <div class="govuk-summary-card">
+                <div class="govuk-summary-card__title-wrapper">
+                  <h2 class="govuk-summary-card__title">{{ user.organisation.name }} Stats</h2>
+                </div>
+                <div class="govuk-summary-card__content">
+                  <dl class="govuk-summary-list govuk-summary-list--no-border">
+                    <div class="govuk-summary-list__row">
+                      <dt class="govuk-summary-list__key">Active Assessors</dt>
+                      <dd class="govuk-summary-list__value">{{ stats.activeAssessors or '-' }}</dd>
+                    </div>
+                    <div class="govuk-summary-list__row">
+                      <dt class="govuk-summary-list__key">Cross-Gov Assessors</dt>
+                      <dd class="govuk-summary-list__value">{{ stats.crossGovAssessors or '-' }}</dd>
+                    </div>
+                    <div class="govuk-summary-list__row">
+                      <dt class="govuk-summary-list__key">Upcoming Assessments</dt>
+                      <dd class="govuk-summary-list__value">{{ stats.upcomingAssessments or '-' }}</dd>
+                    </div>
+                  </dl>
+                </div>
+              </div>
+            </div>
+          </div>
+        {% endif %}
+
+        <!-- Recent Activity Section -->
+        <div class="govuk-summary-card govuk-!-margin-top-6">
+          <div class="govuk-summary-card__title-wrapper">
+            <h2 class="govuk-summary-card__title">Recent Activity</h2>
+          </div>
+          <div class="govuk-summary-card__content">
+            {% if recentActivity and recentActivity.length > 0 %}
+              <ul class="govuk-list">
+                {% for activity in recentActivity %}
+                  <li class="govuk-!-margin-bottom-2">
+                    <span class="govuk-body-s govuk-!-font-weight-bold">{{ activity.type }}</span>
+                    <span class="govuk-body-s"> - {{ activity.description }}</span>
+                    <br>
+                    <span class="govuk-hint govuk-!-font-size-14">{{ activity.timestamp | formatDate }}</span>
+                  </li>
+                {% endfor %}
+              </ul>
+            {% else %}
+              <p class="govuk-body">No recent activity to display.</p>
+            {% endif %}
+          </div>
+        </div>
+      </div>
+    </div>
+
+{% endblock %}

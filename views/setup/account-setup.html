@@ -1,0 +1,56 @@
+{% extends "layouts/layout.html" %}
+
+{% block pageTitle %}Complete Your Account Setup{% endblock %}
+
+{% block content %}
+<div class="govuk-width-container">
+  <main class="govuk-main-wrapper" id="main-content" role="main">
+    <div class="govuk-grid-row">
+      <div class="govuk-grid-column-two-thirds">
+        <h1 class="govuk-heading-l">Complete Your Account Setup</h1>
+        
+        <p class="govuk-body">Welcome to the Service Assessment Platform. Please complete your account setup by providing your details and setting a password.</p>
+        
+        <form method="post">
+          <input type="hidden" name="_csrf" value="{{ csrfToken }}">
+          
+          <div class="govuk-form-group">
+            <label class="govuk-label" for="first_name">
+              First name
+            </label>
+            <input class="govuk-input" id="first_name" name="first_name" type="text" value="{{ user.first_name }}" required>
+          </div>
+          
+          <div class="govuk-form-group">
+            <label class="govuk-label" for="last_name">
+              Last name
+            </label>
+            <input class="govuk-input" id="last_name" name="last_name" type="text" value="{{ user.last_name }}" required>
+          </div>
+          
+          <div class="govuk-form-group">
+            <label class="govuk-label" for="password">
+              Password
+            </label>
+            <div class="govuk-hint">
+              Your password must be at least 8 characters long
+            </div>
+            <input class="govuk-input" id="password" name="password" type="password" required>
+          </div>
+          
+          <div class="govuk-form-group">
+            <label class="govuk-label" for="confirm_password">
+              Confirm password
+            </label>
+            <input class="govuk-input" id="confirm_password" name="confirm_password" type="password" required>
+          </div>
+          
+          <div class="govuk-button-group">
+            <button type="submit" class="govuk-button">Complete Setup</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </main>
+</div>
+{% endblock %}

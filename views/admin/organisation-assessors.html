@@ -1,0 +1,323 @@
+{% extends "layouts/layout.html" %}
+
+{% block pageTitle %}{{ organisation.name }} Assessors{% endblock %}
+
+{% block content %}
+    <div class="govuk-grid-row">
+      <div class="govuk-grid-column-one-quarter">
+        <!-- Filters -->
+        <div class="govuk-form-group">
+          <label class="govuk-label govuk-label--s" for="search-assessors">
+            Search assessors
+          </label>
+          <div id="search-assessors-hint" class="govuk-hint">
+            Search by name or email address
+          </div>
+          <input class="govuk-input" id="search-assessors" name="search-assessors" type="text" 
+                 aria-describedby="search-assessors-hint" 
+                 autocomplete="off"
+                 aria-label="Search assessors by name or email">
+        </div>
+
+        <div class="govuk-form-group">
+          <fieldset class="govuk-fieldset" aria-describedby="role-filter-hint">
+            <legend class="govuk-fieldset__legend govuk-fieldset__legend--s">
+              Filter by role
+            </legend>
+            <div id="role-filter-hint" class="govuk-hint">
+              Select one or more assessment roles to filter by
+            </div>
+            <div class="govuk-checkboxes govuk-checkboxes--small" data-module="govuk-checkboxes">
+              <div class="govuk-checkboxes__item">
+                <input class="govuk-checkboxes__input" id="role-all" name="roleFilter" type="checkbox" value="all" checked>
+                <label class="govuk-label govuk-checkboxes__label" for="role-all">All roles</label>
+              </div>
+              <div class="govuk-checkboxes__item">
+                <input class="govuk-checkboxes__input" id="role-lead" name="roleFilter" type="checkbox" value="Lead">
+                <label class="govuk-label govuk-checkboxes__label" for="role-lead">Lead</label>
+              </div>
+              <div class="govuk-checkboxes__item">
+                <input class="govuk-checkboxes__input" id="role-design" name="roleFilter" type="checkbox" value="Design">
+                <label class="govuk-label govuk-checkboxes__label" for="role-design">Design</label>
+              </div>
+              <div class="govuk-checkboxes__item">
+                <input class="govuk-checkboxes__input" id="role-accessibility" name="roleFilter" type="checkbox" value="Accessibility">
+                <label class="govuk-label govuk-checkboxes__label" for="role-accessibility">Accessibility</label>
+              </div>
+              <div class="govuk-checkboxes__item">
+                <input class="govuk-checkboxes__input" id="role-content" name="roleFilter" type="checkbox" value="Content design">
+                <label class="govuk-label govuk-checkboxes__label" for="role-content">Content design</label>
+              </div>
+              <div class="govuk-checkboxes__item">
+                <input class="govuk-checkboxes__input" id="role-service" name="roleFilter" type="checkbox" value="Service design">
+                <label class="govuk-label govuk-checkboxes__label" for="role-service">Service design</label>
+              </div>
+              <div class="govuk-checkboxes__item">
+                <input class="govuk-checkboxes__input" id="role-interaction" name="roleFilter" type="checkbox" value="Interaction design">
+                <label class="govuk-label govuk-checkboxes__label" for="role-interaction">Interaction design</label>
+              </div>
+              <div class="govuk-checkboxes__item">
+                <input class="govuk-checkboxes__input" id="role-product" name="roleFilter" type="checkbox" value="Product">
+                <label class="govuk-label govuk-checkboxes__label" for="role-product">Product</label>
+              </div>
+              <div class="govuk-checkboxes__item">
+                <input class="govuk-checkboxes__input" id="role-delivery" name="roleFilter" type="checkbox" value="Delivery">
+                <label class="govuk-label govuk-checkboxes__label" for="role-delivery">Delivery</label>
+              </div>
+              <div class="govuk-checkboxes__item">
+                <input class="govuk-checkboxes__input" id="role-tech" name="roleFilter" type="checkbox" value="Tech">
+                <label class="govuk-label govuk-checkboxes__label" for="role-tech">Tech</label>
+              </div>
+            </div>
+          </fieldset>
+        </div>
+
+        <div class="govuk-form-group">
+          <fieldset class="govuk-fieldset" aria-describedby="availability-filter-hint">
+            <legend class="govuk-fieldset__legend govuk-fieldset__legend--s">
+              Filter by availability
+            </legend>
+            <div id="availability-filter-hint" class="govuk-hint">
+              Show assessors by their availability for cross-government work
+            </div>
+            <div class="govuk-radios govuk-radios--small" data-module="govuk-radios">
+              <div class="govuk-radios__item">
+                <input class="govuk-radios__input" id="availability-all" name="availabilityFilter" type="radio" value="all" checked>
+                <label class="govuk-label govuk-radios__label" for="availability-all">All assessors</label>
+              </div>
+              <div class="govuk-radios__item">
+                <input class="govuk-radios__input" id="availability-crossgov" name="availabilityFilter" type="radio" value="crossgov">
+                <label class="govuk-label govuk-radios__label" for="availability-crossgov">Cross-government only</label>
+              </div>
+              <div class="govuk-radios__item">
+                <input class="govuk-radios__input" id="availability-department" name="availabilityFilter" type="radio" value="department">
+                <label class="govuk-label govuk-radios__label" for="availability-department">Department only</label>
+              </div>
+            </div>
+          </fieldset>
+        </div>
+
+        <div class="govuk-form-group">
+          <button type="button" class="govuk-button govuk-button--secondary" id="clear-filters" 
+                  aria-describedby="clear-filters-hint">
+            Clear all filters
+          </button>
+          <div id="clear-filters-hint" class="govuk-hint govuk-!-font-size-14">
+            Reset all filters to show all assessors
+          </div>
+        </div>
+      </div>
+      
+      <div class="govuk-grid-column-three-quarters">
+        <h1 class="govuk-heading-l">Manage assessors</h1>
+        
+        {% if assessors and assessors.length > 0 %}
+          <div class="govuk-summary-card">
+            <div class="govuk-summary-card__title-wrapper">
+              <h2 class="govuk-summary-card__title">Assessors (<span id="assessor-count">{{ assessors.length }}</span>)</h2>
+              <div id="assessor-count-description" class="govuk-visually-hidden">
+                Showing <span id="accessible-count">{{ assessors.length }}</span> assessors
+              </div>
+              <ul class="govuk-summary-card__actions">
+                <li class="govuk-summary-card__action">
+                  <a class="govuk-link" href="/admin/organisation/assessors/add">Add assessor</a>
+                </li>
+              </ul>
+            </div>
+            <div class="govuk-summary-card__content">
+              <table class="govuk-table" id="assessors-table" 
+                     aria-label="List of assessors" 
+                     aria-describedby="assessor-count-description">
+                <caption class="govuk-visually-hidden">
+                  Table showing assessors for {{ organisation.name }} with their roles, availability and status
+                </caption>
+                <thead class="govuk-table__head">
+                  <tr class="govuk-table__row">
+                    <th scope="col" class="govuk-table__header govuk-!-width-one-half">Name</th>
+                    <th scope="col" class="govuk-table__header">Roles</th>
+                    <th scope="col" class="govuk-table__header">Cross-GOV</th>
+                  </tr>
+                </thead>
+                <tbody class="govuk-table__body">
+                  {% for assessor in assessors %}
+                    <tr class="govuk-table__row assessor-row" 
+                        data-name="{{ assessor.first_name }} {{ assessor.last_name }}" 
+                        data-email="{{ assessor.email }}"
+                        data-roles="{{ assessor.roles or '' }}"
+                        data-crossgov="{{ 'true' if assessor.cross_gov_assessor else 'false' }}"
+                        data-status="{{ assessor.status }}">
+                      <td class="govuk-table__cell">
+                        <a href="/admin/organisation/assessors/{{ assessor.id }}/edit" class="govuk-link">
+                          {{ assessor.first_name }} {{ assessor.last_name }}
+                        </a>
+                      </td>
+                      <td class="govuk-table__cell">
+                        {% if assessor.roles %}
+                          {{ assessor.roles }}
+                        {% else %}
+                          <span class="govuk-hint govuk-!-font-size-14">No roles assigned</span>
+                        {% endif %}
+                      </td>
+                      <td class="govuk-table__cell">
+                        {% if assessor.cross_gov_assessor %}
+                        Yes
+                        {% else %}
+                          No
+                        {% endif %}
+                      </td>
+                    </tr>
+                  {% endfor %}
+                </tbody>
+              </table>
+              
+              <div id="no-results" class="govuk-!-display-none">
+                <p class="govuk-body">No assessors match your current filters.</p>
+              </div>
+            </div>
+          </div>
+        {% else %}
+          <div class="govuk-summary-card">
+            <div class="govuk-summary-card__title-wrapper">
+              <h2 class="govuk-summary-card__title">No assessors</h2>
+            </div>
+            <div class="govuk-summary-card__content">
+              <p class="govuk-body">You haven't added any assessors to {{ organisation.name }} yet.</p>
+              <p class="govuk-body">
+                <a href="/admin/organisation/assessors/add" class="govuk-link">Add your first assessor</a>
+              </p>
+            </div>
+          </div>
+        {% endif %}
+      </div>
+    </div>
+
+<!-- Screen reader announcements -->
+<div aria-live="polite" aria-atomic="true" class="govuk-visually-hidden" id="filter-announcements"></div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const searchInput = document.getElementById('search-assessors');
+    const roleFilters = document.querySelectorAll('input[name="roleFilter"]');
+    const availabilityFilters = document.querySelectorAll('input[name="availabilityFilter"]');
+    const clearFiltersBtn = document.getElementById('clear-filters');
+    const assessorRows = document.querySelectorAll('.assessor-row');
+    const assessorCount = document.getElementById('assessor-count');
+    const accessibleCount = document.getElementById('accessible-count');
+    const noResults = document.getElementById('no-results');
+    const table = document.getElementById('assessors-table');
+    const announcements = document.getElementById('filter-announcements');
+
+    function filterAssessors() {
+        const searchTerm = searchInput.value.toLowerCase();
+        const selectedRoles = Array.from(roleFilters)
+            .filter(cb => cb.checked && cb.value !== 'all')
+            .map(cb => cb.value);
+        const availabilityFilter = document.querySelector('input[name="availabilityFilter"]:checked').value;
+        const showAllRoles = document.getElementById('role-all').checked;
+
+        let visibleCount = 0;
+
+        assessorRows.forEach(row => {
+            const name = row.dataset.name.toLowerCase();
+            const email = row.dataset.email.toLowerCase();
+            const roles = row.dataset.roles.toLowerCase();
+            const crossGov = row.dataset.crossgov === 'true';
+            const status = row.dataset.status;
+
+            // Search filter
+            const matchesSearch = name.includes(searchTerm) || email.includes(searchTerm);
+
+            // Role filter
+            let matchesRole = showAllRoles || selectedRoles.length === 0;
+            if (!matchesRole && selectedRoles.length > 0) {
+                matchesRole = selectedRoles.some(role => 
+                    roles.includes(role.toLowerCase())
+                );
+            }
+
+            // Availability filter
+            let matchesAvailability = true;
+            if (availabilityFilter === 'crossgov') {
+                matchesAvailability = crossGov;
+            } else if (availabilityFilter === 'department') {
+                matchesAvailability = !crossGov;
+            }
+
+            // Show/hide row
+            if (matchesSearch && matchesRole && matchesAvailability && status === 'active') {
+                row.style.display = '';
+                visibleCount++;
+            } else {
+                row.style.display = 'none';
+            }
+        });
+
+        // Update count and show/hide no results message
+        assessorCount.textContent = visibleCount;
+        accessibleCount.textContent = visibleCount;
+        
+        if (visibleCount === 0) {
+            table.style.display = 'none';
+            noResults.classList.remove('govuk-!-display-none');
+            announcements.textContent = 'No assessors match your current filters.';
+        } else {
+            table.style.display = '';
+            noResults.classList.add('govuk-!-display-none');
+            
+            // Announce filter results
+            const resultText = visibleCount === 1 ? 
+                '1 assessor found.' : 
+                `${visibleCount} assessors found.`;
+            announcements.textContent = resultText;
+        }
+    }
+
+    function clearFilters() {
+        searchInput.value = '';
+        document.getElementById('role-all').checked = true;
+        roleFilters.forEach(cb => {
+            if (cb.value !== 'all') cb.checked = false;
+        });
+        document.getElementById('availability-all').checked = true;
+        announcements.textContent = 'All filters cleared. Showing all assessors.';
+        filterAssessors();
+    }
+
+    // Event listeners
+    searchInput.addEventListener('input', filterAssessors);
+    roleFilters.forEach(cb => cb.addEventListener('change', filterAssessors));
+    availabilityFilters.forEach(radio => radio.addEventListener('change', filterAssessors));
+    clearFiltersBtn.addEventListener('click', clearFilters);
+    
+    // Keyboard navigation for clear filters button
+    clearFiltersBtn.addEventListener('keydown', function(e) {
+        if (e.key === 'Enter' || e.key === ' ') {
+            e.preventDefault();
+            clearFilters();
+        }
+    });
+
+    // Handle "All roles" checkbox
+    document.getElementById('role-all').addEventListener('change', function() {
+        if (this.checked) {
+            roleFilters.forEach(cb => {
+                if (cb.value !== 'all') cb.checked = false;
+            });
+        }
+        filterAssessors();
+    });
+
+    // Uncheck "All roles" when other roles are selected
+    roleFilters.forEach(cb => {
+        if (cb.value !== 'all') {
+            cb.addEventListener('change', function() {
+                if (this.checked) {
+                    document.getElementById('role-all').checked = false;
+                }
+                filterAssessors();
+            });
+        }
+    });
+});
+</script>
+{% endblock %}

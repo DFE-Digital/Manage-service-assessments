@@ -1,0 +1,157 @@
+{% extends "layouts/layout.html" %}
+
+{% block pageTitle %}Add Assessor - {{ organisation.name }}{% endblock %}
+
+{% block content %}
+    <div class="govuk-grid-row">
+      <div class="govuk-grid-column-two-thirds">
+        <a href="/admin/organisation/assessors" class="govuk-back-link">Back to assessors</a>
+        <h1 class="govuk-heading-l">Add assessor</h1>
+
+        <p class="govuk-body">Add a new assessor to your organisation. If they don't have an account yet, they'll be sent an email to set up their password.</p>
+
+        <form method="post">
+          <input type="hidden" name="_csrf" value="{{ csrfToken }}">
+
+          <div class="govuk-form-group">
+            <label class="govuk-label govuk-label--m" for="email">
+              Email address
+            </label>
+            <div class="govuk-hint">
+              Must be a {{ organisation.name }} email address
+            </div>
+            <input class="govuk-input" id="email" name="email" type="email" autocomplete="email" required>
+          </div>
+
+          <div class="govuk-form-group">
+            <label class="govuk-label govuk-label--m" for="first_name">
+              First name
+            </label>
+            <input class="govuk-input" id="first_name" name="first_name" type="text" required>
+          </div>
+
+          <div class="govuk-form-group">
+            <label class="govuk-label govuk-label--m" for="last_name">
+              Last name
+            </label>
+            <input class="govuk-input" id="last_name" name="last_name" type="text" required>
+          </div>
+
+          <div class="govuk-form-group">
+            <fieldset class="govuk-fieldset">
+              <legend class="govuk-fieldset__legend govuk-fieldset__legend--m">
+                Assessment roles
+              </legend>
+              <div class="govuk-hint">
+                Select all the roles this assessor can perform
+              </div>
+              <div class="govuk-checkboxes" data-module="govuk-checkboxes">
+                <div class="govuk-checkboxes__item">
+                  <input class="govuk-checkboxes__input" id="role-lead" name="roles" type="checkbox" value="Lead">
+                  <label class="govuk-label govuk-checkboxes__label" for="role-lead">
+                    Lead assessor
+                  </label>
+                  <div class="govuk-hint govuk-checkboxes__hint">
+                    Can lead assessments and coordinate teams
+                  </div>
+                </div>
+                <div class="govuk-checkboxes__item">
+                  <input class="govuk-checkboxes__input" id="role-design" name="roles" type="checkbox" value="Design">
+                  <label class="govuk-label govuk-checkboxes__label" for="role-design">
+                    Design
+                  </label>
+                  <div class="govuk-hint govuk-checkboxes__hint">
+                    User experience and service design expertise
+                  </div>
+                </div>
+                <div class="govuk-checkboxes__item">
+                  <input class="govuk-checkboxes__input" id="role-accessibility" name="roles" type="checkbox" value="Accessibility">
+                  <label class="govuk-label govuk-checkboxes__label" for="role-accessibility">
+                    Accessibility
+                  </label>
+                  <div class="govuk-hint govuk-checkboxes__hint">
+                    Digital accessibility compliance
+                  </div>
+                </div>
+                <div class="govuk-checkboxes__item">
+                  <input class="govuk-checkboxes__input" id="role-content" name="roles" type="checkbox" value="Content design">
+                  <label class="govuk-label govuk-checkboxes__label" for="role-content">
+                    Content design
+                  </label>
+                  <div class="govuk-hint govuk-checkboxes__hint">
+                    Content strategy and design
+                  </div>
+                </div>
+                <div class="govuk-checkboxes__item">
+                  <input class="govuk-checkboxes__input" id="role-service" name="roles" type="checkbox" value="Service design">
+                  <label class="govuk-label govuk-checkboxes__label" for="role-service">
+                    Service design
+                  </label>
+                  <div class="govuk-hint govuk-checkboxes__hint">
+                    End-to-end service design
+                  </div>
+                </div>
+                <div class="govuk-checkboxes__item">
+                  <input class="govuk-checkboxes__input" id="role-interaction" name="roles" type="checkbox" value="Interaction design">
+                  <label class="govuk-label govuk-checkboxes__label" for="role-interaction">
+                    Interaction design
+                  </label>
+                  <div class="govuk-hint govuk-checkboxes__hint">
+                    User interface design
+                  </div>
+                </div>
+                <div class="govuk-checkboxes__item">
+                  <input class="govuk-checkboxes__input" id="role-product" name="roles" type="checkbox" value="Product">
+                  <label class="govuk-label govuk-checkboxes__label" for="role-product">
+                    Product
+                  </label>
+                  <div class="govuk-hint govuk-checkboxes__hint">
+                    Product management and strategy
+                  </div>
+                </div>
+                <div class="govuk-checkboxes__item">
+                  <input class="govuk-checkboxes__input" id="role-delivery" name="roles" type="checkbox" value="Delivery">
+                  <label class="govuk-label govuk-checkboxes__label" for="role-delivery">
+                    Delivery
+                  </label>
+                  <div class="govuk-hint govuk-checkboxes__hint">
+                    Agile delivery and project management
+                  </div>
+                </div>
+                <div class="govuk-checkboxes__item">
+                  <input class="govuk-checkboxes__input" id="role-tech" name="roles" type="checkbox" value="Tech">
+                  <label class="govuk-label govuk-checkboxes__label" for="role-tech">
+                    Tech
+                  </label>
+                  <div class="govuk-hint govuk-checkboxes__hint">
+                    Technical architecture and development
+                  </div>
+                </div>
+              </div>
+            </fieldset>
+          </div>
+
+          <div class="govuk-form-group">
+            <div class="govuk-checkboxes" data-module="govuk-checkboxes">
+              <div class="govuk-checkboxes__item">
+                <input class="govuk-checkboxes__input" id="cross_gov_assessor" name="cross_gov_assessor" type="checkbox" value="1">
+                <label class="govuk-label govuk-checkboxes__label" for="cross_gov_assessor">
+                  Cross-government assessor
+                </label>
+                <div class="govuk-hint govuk-checkboxes__hint">
+                  Available for assessments across all government departments
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="govuk-button-group">
+            <button type="submit" class="govuk-button" data-module="govuk-button">
+              Add assessor
+            </button>
+            <a class="govuk-link" href="/admin/organisation/assessors">Cancel</a>
+          </div>
+        </form>
+      </div>
+    </div>
+{% endblock %}

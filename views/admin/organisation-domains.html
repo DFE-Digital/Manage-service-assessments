@@ -1,0 +1,411 @@
+{% extends "layouts/layout.html" %}
+
+{% block pageTitle %}Manage {{ organisation.name }} Domains{% endblock %}
+
+{% block head %}
+<style>
+  .govuk-modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 1000;
+  }
+  
+  .govuk-modal__overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+  }
+  
+  .govuk-modal__content {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background-color: white;
+    padding: 2rem;
+    border-radius: 4px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    max-width: 500px;
+    width: 90%;
+  }
+  
+  .govuk-modal__header {
+    margin-bottom: 1.5rem;
+  }
+  
+  .govuk-modal__body {
+    margin-bottom: 2rem;
+  }
+  
+  .govuk-modal__footer {
+    border-top: 1px solid #b1b4b6;
+    padding-top: 1.5rem;
+  }
+  
+  .govuk-visually-hidden {
+    position: absolute !important;
+    width: 1px !important;
+    height: 1px !important;
+    padding: 0 !important;
+    margin: -1px !important;
+    overflow: hidden !important;
+    clip: rect(0, 0, 0, 0) !important;
+    white-space: nowrap !important;
+    border: 0 !important;
+  }
+  
+  .govuk-visually-hidden-focusable:focus {
+    position: static !important;
+    width: auto !important;
+    height: auto !important;
+    padding: inherit !important;
+    margin: inherit !important;
+    overflow: visible !important;
+    clip: auto !important;
+    white-space: normal !important;
+  }
+  
+  .govuk-skip-link {
+    background: #0b0c0c;
+    color: #ffffff;
+    font-family: "GDS Transport", arial, sans-serif;
+    font-size: 14px;
+    font-size: 0.875rem;
+    line-height: 1.14286;
+    padding: 10px 15px;
+    text-decoration: none;
+    display: block;
+    text-align: center;
+  }
+  
+  .govuk-skip-link:hover {
+    color: #ffffff;
+    text-decoration: underline;
+  }
+</style>
+{% endblock %}
+
+{% block content %}
+    <div class="govuk-grid-row">
+      <div class="govuk-grid-column-one-quarter">
+        <nav class="dfe-vertical-nav govuk-!-margin-top-2" aria-label="Admin navigation">
+          <a href="/admin/organisations" class="govuk-back-link govuk-!-margin-top-0 govuk-!-margin-bottom-9">Back to organisations</a>
+          
+          {% if user.isSuperAdmin %}
+            <h2 class="dfe-vertical-nav__section-header">Menu</h2>
+            <ul class="dfe-vertical-nav__section">
+              <li class="dfe-vertical-nav__section-item dfe-vertical-nav__section-item--current">
+                <a class="dfe-vertical-nav__link" href="/admin/organisations">
+                  <span class="dfe-vertical-nav__link-text">Organisations</span>
+                </a>
+              </li>
+              <li class="dfe-vertical-nav__section-item">
+                <a class="dfe-vertical-nav__link" href="/admin/assessors">
+                  <span class="dfe-vertical-nav__link-text">Assessors</span>
+                </a>
+              </li>
+              <li class="dfe-vertical-nav__section-item">
+                <a class="dfe-vertical-nav__link" href="/admin/organisation/settings">
+                  <span class="dfe-vertical-nav__link-text">Settings</span>
+                </a>
+              </li>
+            </ul>
+          {% endif %}
+          {% if user.isOrganisationAdmin %}
+            <h2 class="dfe-vertical-nav__section-header">Organisation admin</h2>
+            <ul class="dfe-vertical-nav__section">
+              <li class="dfe-vertical-nav__section-item">
+                <a class="dfe-vertical-nav__link" href="/admin/assessments">
+                  <span class="dfe-vertical-nav__link-text">Assessments</span>
+                </a>
+              </li>
+              <li class="dfe-vertical-nav__section-item">
+                <a class="dfe-vertical-nav__link" href="/admin/organisation/assessors">
+                  <span class="dfe-vertical-nav__link-text">Assessors</span>
+                </a>
+              </li>
+              <li class="dfe-vertical-nav__section-item">
+                <a class="dfe-vertical-nav__link" href="/admin/organisation/settings">
+                  <span class="dfe-vertical-nav__link-text">Settings</span>
+                </a>
+              </li>
+            </ul>
+          {% endif %}
+          
+          <h2 class="dfe-vertical-nav__section-header">{{ organisation.name }}</h2>
+          <ul class="dfe-vertical-nav__section">
+            <li class="dfe-vertical-nav__section-item">
+              <a class="dfe-vertical-nav__link" href="/admin/organisations/{{ organisation.id }}">Overview</a>
+            </li>
+            <li class="dfe-vertical-nav__section-item dfe-vertical-nav__section-item--current">
+              <a class="dfe-vertical-nav__link" href="/admin/organisations/{{ organisation.id }}/domains">Domains</a>
+            </li>
+            <li class="dfe-vertical-nav__section-item">
+              <a class="dfe-vertical-nav__link" href="/admin/organisations/{{ organisation.id }}/admins">Admins</a>
+            </li>
+          </ul>
+        </nav>
+      </div>
+      
+      <div class="govuk-grid-column-three-quarters">
+        <span class="govuk-caption-l">{{ organisation.name }}</span>
+        <h1 class="govuk-heading-l">Manage domains</h1>
+
+        <p class="govuk-body">When a user registers or signs in with an email address that matches one of these domains, they will be automatically assigned to this organisation.</p>
+        <p class="govuk-body">For example, if you add "education.gov.uk", any user with an @education.gov.uk email address will automatically become part of this organisation.</p>
+    
+   
+
+        <!-- Domains List -->
+        <div class="govuk-summary-card">
+          <div class="govuk-summary-card__title-wrapper">
+            <h2 class="govuk-summary-card__title">
+             Domains
+            </h2>
+                         <ul class="govuk-summary-card__actions">
+               <li class="govuk-summary-card__action">
+                 <a class="govuk-link" href="#" onclick="showAddDomainModal()">Add domain</a>
+               </li>
+             </ul>
+          </div>
+          <div class="govuk-summary-card__content">
+            {% if domains and domains.length > 0 %}
+              <table class="govuk-table">
+                <thead class="govuk-table__head">
+                  <tr class="govuk-table__row">
+                    <th scope="col" class="govuk-table__header govuk-!-width-three-quarters">Domain</th>
+                    <th scope="col" class="govuk-table__header">Actions</th>
+                  </tr>
+                </thead>
+                <tbody class="govuk-table__body">
+                  {% for domain in domains %}
+                    <tr class="govuk-table__row">
+                      <td class="govuk-table__cell">
+                       {{ domain.domain }}
+                      </td>
+                      <td class="govuk-table__cell">
+                        <a href="#" class="govuk-link govuk-link--destructive" onclick="showRemoveDomainModal('{{ domain.id }}', '{{ domain.domain }}', '{{ organisation.id }}')">
+                          Remove
+                        </a>
+                      </td>
+                    </tr>
+                  {% endfor %}
+                </tbody>
+              </table>
+            {% else %}
+              <p class="govuk-body">No domains configured for this organisation.</p>
+              <p class="govuk-body">Add domains to automatically assign users with matching email addresses to this organisation.</p>
+            {% endif %}
+          </div>
+        </div>
+
+   
+
+      
+      </div>
+         </div>
+
+     <!-- Remove Domain Modal -->
+     <div class="govuk-modal" id="removeDomainModal" style="display: none;" role="dialog" aria-labelledby="removeDomainTitle" aria-describedby="removeDomainDescription" aria-modal="true">
+       <div class="govuk-modal__overlay" onclick="hideRemoveDomainModal()" tabindex="-1"></div>
+       <div class="govuk-modal__content" role="document">
+         <a href="#removeDomainTitle" class="govuk-skip-link govuk-visually-hidden-focusable">Skip to modal content</a>
+         <div class="govuk-modal__header">
+           <h2 class="govuk-heading-m" id="removeDomainTitle">Remove Domain</h2>
+         </div>
+         <div class="govuk-modal__body">
+           <p class="govuk-body" id="removeDomainDescription">Are you sure you want to remove the domain <strong id="domainToRemove"></strong>?</p>
+           <p class="govuk-body">Users with this email domain will no longer be automatically assigned to this organisation.</p>
+         </div>
+         <div class="govuk-modal__footer">
+           <form method="post" id="removeDomainForm">
+             <input type="hidden" name="_csrf" value="{{ csrfToken }}">
+             <div class="govuk-button-group">
+               <button type="submit" class="govuk-button govuk-button--warning" id="removeDomainSubmit">Remove domain</button>
+               <button type="button" class="govuk-button govuk-button--secondary" onclick="hideRemoveDomainModal()">Cancel</button>
+             </div>
+           </form>
+         </div>
+       </div>
+     </div>
+
+     <!-- Add Domain Modal -->
+     <div class="govuk-modal" id="addDomainModal" style="display: none;" role="dialog" aria-labelledby="addDomainTitle" aria-describedby="addDomainDescription" aria-modal="true">
+       <div class="govuk-modal__overlay" onclick="hideAddDomainModal()" tabindex="-1"></div>
+       <div class="govuk-modal__content" role="document">
+         <a href="#addDomainTitle" class="govuk-skip-link govuk-visually-hidden-focusable">Skip to modal content</a>
+         <div class="govuk-modal__header">
+           <h2 class="govuk-heading-m" id="addDomainTitle">Add Domain</h2>
+         </div>
+         <div class="govuk-modal__body">
+           <form method="post" id="addDomainForm">
+             <input type="hidden" name="_csrf" value="{{ csrfToken }}">
+             
+             <div class="govuk-form-group">
+               <label class="govuk-label" for="domain">
+                 Email domain
+               </label>
+               <div class="govuk-hint" id="domain-hint">
+                 Enter the domain name without @ (e.g., education.gov.uk)
+               </div>
+               <input class="govuk-input" id="domain" name="domain" type="text" required aria-describedby="domain-hint" aria-label="Email domain">
+             </div>
+           </form>
+         </div>
+         <div class="govuk-modal__footer">
+           <div class="govuk-button-group">
+             <button type="submit" form="addDomainForm" class="govuk-button" id="addDomainSubmit">Add domain</button>
+             <button type="button" class="govuk-button govuk-button--secondary" onclick="hideAddDomainModal()">Cancel</button>
+           </div>
+         </div>
+       </div>
+     </div>
+
+     <script>
+       // Store the element that had focus before modal opened
+       let previouslyFocusedElement = null;
+       
+       function showRemoveDomainModal(domainId, domainName, organisationId) {
+         // Store current focus
+         previouslyFocusedElement = document.activeElement;
+         
+         document.getElementById('domainToRemove').textContent = domainName;
+         document.getElementById('removeDomainForm').action = `/admin/organisations/${organisationId}/domains/${domainId}/remove`;
+         document.getElementById('removeDomainModal').style.display = 'block';
+         document.body.style.overflow = 'hidden';
+         
+         // Focus the modal and trap focus
+         document.getElementById('removeDomainModal').focus();
+         
+         // Announce to screen readers
+         announceToScreenReader('Remove domain modal opened. Domain: ' + domainName);
+       }
+       
+       function hideRemoveDomainModal() {
+         document.getElementById('removeDomainModal').style.display = 'none';
+         document.body.style.overflow = 'auto';
+         
+         // Restore focus to previously focused element
+         if (previouslyFocusedElement) {
+           previouslyFocusedElement.focus();
+           previouslyFocusedElement = null;
+         }
+         
+         // Announce to screen readers
+         announceToScreenReader('Remove domain modal closed');
+       }
+       
+       function showAddDomainModal() {
+         // Store current focus
+         previouslyFocusedElement = document.activeElement;
+         
+         document.getElementById('addDomainForm').action = `/admin/organisations/{{ organisation.id }}/domains/add`;
+         document.getElementById('domain').value = '';
+         document.getElementById('addDomainModal').style.display = 'block';
+         document.body.style.overflow = 'hidden';
+         
+         // Focus the modal and then the input field
+         document.getElementById('addDomainModal').focus();
+         document.getElementById('domain').focus();
+         
+         // Announce to screen readers
+         announceToScreenReader('Add domain modal opened');
+       }
+       
+       function hideAddDomainModal() {
+         document.getElementById('addDomainModal').style.display = 'none';
+         document.body.style.overflow = 'auto';
+         
+         // Restore focus to previously focused element
+         if (previouslyFocusedElement) {
+           previouslyFocusedElement.focus();
+           previouslyFocusedElement = null;
+         }
+         
+         // Announce to screen readers
+         announceToScreenReader('Add domain modal closed');
+       }
+       
+       // Function to announce changes to screen readers
+       function announceToScreenReader(message) {
+         const announcement = document.createElement('div');
+         announcement.setAttribute('aria-live', 'polite');
+         announcement.setAttribute('aria-atomic', 'true');
+         announcement.className = 'govuk-visually-hidden';
+         announcement.textContent = message;
+         
+         document.body.appendChild(announcement);
+         
+         // Remove after announcement
+         setTimeout(() => {
+           document.body.removeChild(announcement);
+         }, 1000);
+       }
+       
+       // Close modal when clicking outside
+       document.addEventListener('click', function(event) {
+         if (event.target.classList.contains('govuk-modal__overlay')) {
+           if (document.getElementById('removeDomainModal').style.display === 'block') {
+             hideRemoveDomainModal();
+           } else if (document.getElementById('addDomainModal').style.display === 'block') {
+             hideAddDomainModal();
+           }
+         }
+       });
+       
+       // Close modal with Escape key
+       document.addEventListener('keydown', function(event) {
+         if (event.key === 'Escape') {
+           if (document.getElementById('removeDomainModal').style.display === 'block') {
+             hideRemoveDomainModal();
+           } else if (document.getElementById('addDomainModal').style.display === 'block') {
+             hideAddDomainModal();
+           }
+         }
+         
+         // Trap focus within modals using Tab key
+         if (event.key === 'Tab') {
+           const removeModal = document.getElementById('removeDomainModal');
+           const addModal = document.getElementById('addDomainModal');
+           
+           if (removeModal.style.display === 'block') {
+             trapFocus(event, removeModal);
+           } else if (addModal.style.display === 'block') {
+             trapFocus(event, addModal);
+           }
+         }
+       });
+       
+       // Function to trap focus within a modal
+       function trapFocus(event, modal) {
+         const focusableElements = modal.querySelectorAll(
+           'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'
+         );
+         
+         if (focusableElements.length === 0) return;
+         
+         const firstElement = focusableElements[0];
+         const lastElement = focusableElements[focusableElements.length - 1];
+         
+         if (event.shiftKey) {
+           // Shift + Tab: going backwards
+           if (document.activeElement === firstElement) {
+             event.preventDefault();
+             lastElement.focus();
+           }
+         } else {
+           // Tab: going forwards
+           if (document.activeElement === lastElement) {
+             event.preventDefault();
+             firstElement.focus();
+           }
+         }
+       }
+     </script>
+   {% endblock %}

@@ -1,0 +1,163 @@
+{% extends "layouts/layout.html" %}
+
+{% block pageTitle %}{{ title }}{% endblock %}
+
+{% block content %}
+<div class="govuk-width-container">
+  <main class="govuk-main-wrapper" id="main-content" role="main">
+    <div class="govuk-grid-row">
+      <div class="govuk-grid-column-two-thirds">
+        <h1 class="govuk-heading-l">{{ title }}</h1>
+        <p class="govuk-body-l">{{ description }}</p>
+        
+        {% if dashboardType === 'super-admin' %}
+          <!-- Super Admin Dashboard -->
+          <div class="govuk-grid-row">
+            <div class="govuk-grid-column-one-half">
+              <div class="govuk-summary-card">
+                <div class="govuk-summary-card__title-wrapper">
+                  <h2 class="govuk-summary-card__title">Organisations</h2>
+                </div>
+                <div class="govuk-summary-card__content">
+                  <p class="govuk-body">Manage all organisations, their domains, and admins.</p>
+                  <p class="govuk-body">
+                    <a href="/admin/organisations" class="govuk-link">View organisations</a>
+                  </p>
+                </div>
+              </div>
+            </div>
+            
+            <div class="govuk-grid-column-one-half">
+              <div class="govuk-summary-card">
+                <div class="govuk-summary-card__title-wrapper">
+                  <h2 class="govuk-summary-card__title">Cross-Government Assessors</h2>
+                </div>
+                <div class="govuk-summary-card__content">
+                  <p class="govuk-body">View all assessors available across government.</p>
+                  <p class="govuk-body">
+                    <a href="/admin/assessors" class="govuk-link">View assessors</a>
+                  </p>
+                </div>
+              </div>
+            </div>
+          </div>
+          
+        {% elif dashboardType === 'organisation-admin' %}
+          <!-- Organisation Admin Dashboard -->
+          <div class="govuk-grid-row">
+            <div class="govuk-grid-column-one-half">
+              <div class="govuk-summary-card">
+                <div class="govuk-summary-card__title-wrapper">
+                  <h2 class="govuk-summary-card__title">Assessors</h2>
+                </div>
+                <div class="govuk-summary-card__content">
+                  <p class="govuk-body">Manage assessors within {{ organisation.name }}.</p>
+                  <p class="govuk-body">
+                    <a href="/admin/organisation/assessors" class="govuk-link">Manage assessors</a>
+                  </p>
+                </div>
+              </div>
+            </div>
+            
+            <div class="govuk-grid-column-one-half">
+              <div class="govuk-summary-card">
+                <div class="govuk-summary-card__title-wrapper">
+                  <h2 class="govuk-summary-card__title">Your Organisation</h2>
+                </div>
+                <div class="govuk-summary-card__content">
+                  <p class="govuk-body">You are an admin for {{ organisation.name }}.</p>
+                  <p class="govuk-body">Manage your organisation's assessors and their capabilities.</p>
+                </div>
+              </div>
+            </div>
+          </div>
+          
+        {% else %}
+          <!-- Regular User Dashboard -->
+          <div class="govuk-grid-row">
+            <div class="govuk-grid-column-one-half">
+              <div class="govuk-summary-card">
+                <div class="govuk-summary-card__title-wrapper">
+                  <h2 class="govuk-summary-card__title">Your Profile</h2>
+                </div>
+                <div class="govuk-summary-card__content">
+                  <p class="govuk-body">Manage your account details and settings.</p>
+                  <p class="govuk-body">
+                    <a href="/account" class="govuk-link">View profile</a>
+                  </p>
+                </div>
+              </div>
+            </div>
+            
+            <div class="govuk-grid-column-one-half">
+              <div class="govuk-summary-card">
+                <div class="govuk-summary-card__title-wrapper">
+                  <h2 class="govuk-summary-card__title">Your Organisation</h2>
+                </div>
+                <div class="govuk-summary-card__content">
+                  {% if organisation %}
+                    <p class="govuk-body">You are part of {{ organisation.name }}.</p>
+                  {% else %}
+                    <p class="govuk-body">You are not currently assigned to an organisation.</p>
+                  {% endif %}
+                </div>
+              </div>
+            </div>
+          </div>
+        {% endif %}
+        
+        <!-- Common section for all users -->
+        <div class="govuk-grid-row govuk-!-margin-top-6">
+          <div class="govuk-grid-column-full">
+            <div class="govuk-summary-card">
+              <div class="govuk-summary-card__title-wrapper">
+                <h2 class="govuk-summary-card__title">Quick Actions</h2>
+              </div>
+              <div class="govuk-summary-card__content">
+                <ul class="govuk-list">
+                  <li><a href="/account" class="govuk-link">Manage your account</a></li>
+                  <li><a href="/auth/sign-out" class="govuk-link">Sign out</a></li>
+                </ul>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <div class="govuk-grid-column-one-third">
+        <div class="govuk-summary-card">
+          <div class="govuk-summary-card__title-wrapper">
+            <h2 class="govuk-summary-card__title">Welcome, {{ user.firstName }}</h2>
+          </div>
+          <div class="govuk-summary-card__content">
+            <dl class="govuk-summary-list">
+              <div class="govuk-summary-list__row">
+                <dt class="govuk-summary-list__key">Email</dt>
+                <dd class="govuk-summary-list__value">{{ user.email }}</dd>
+              </div>
+              {% if user.organisation %}
+              <div class="govuk-summary-list__row">
+                <dt class="govuk-summary-list__key">Organisation</dt>
+                <dd class="govuk-summary-list__value">{{ user.organisation.name }}</dd>
+              </div>
+              {% endif %}
+              <div class="govuk-summary-list__row">
+                <dt class="govuk-summary-list__key">Role</dt>
+                <dd class="govuk-summary-list__value">
+                  {% if user.isSuperAdmin %}
+                    Super Admin
+                  {% elif user.isOrganisationAdmin %}
+                    Organisation Admin
+                  {% else %}
+                    User
+                  {% endif %}
+                </dd>
+              </div>
+            </dl>
+          </div>
+        </div>
+      </div>
+    </div>
+  </main>
+</div>
+{% endblock %}

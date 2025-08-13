@@ -1,0 +1,32 @@
+{% extends "layouts/layout.html" %}
+
+{% set title = title or 'Error' %}
+
+{% block content %}
+<div class="govuk-width-container">
+  <main class="govuk-main-wrapper" id="main-content" role="main">
+    <div class="govuk-grid-row">
+      <div class="govuk-grid-column-two-thirds">
+        <h1 class="govuk-heading-l">{{ error.message }}</h1>
+        <p class="govuk-body">
+          {% if error.status == 403 %}
+          This error usually happens when:
+          <ul class="govuk-list govuk-list--bullet">
+            <li>you used the back button to return to a form you've already submitted</li>
+            <li>you had the form open for a long time before submitting</li>
+            <li>you have cookies disabled in your browser</li>
+          </ul>
+          <p class="govuk-body">Please try again by:</p>
+          <ul class="govuk-list govuk-list--bullet">
+            <li>going back to the <a href="/" class="govuk-link">homepage</a> and starting again</li>
+            <li>making sure cookies are enabled in your browser</li>
+          </ul>
+          {% else %}
+          Please try again later. If the problem persists, contact support.
+          {% endif %}
+        </p>
+      </div>
+    </div>
+  </main>
+</div>
+{% endblock %} 

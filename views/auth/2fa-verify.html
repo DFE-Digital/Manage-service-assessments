@@ -1,0 +1,63 @@
+{% extends "layouts/layout.html" %}
+
+{% set public = true %}
+{% set path = 'auth/2fa-verify' %}
+{% set title = 'Check your phone' %}
+
+{% block content %}
+<div class="govuk-grid-row">
+  <div class="govuk-grid-column-two-thirds">
+
+    {% include "partials/_error-summary.html" %}
+    
+      <h1 class="govuk-heading-l">{{ title }}</h1>
+    
+    <p class="govuk-body">We've sent you a text message with a security code.</p>
+    <p class="govuk-body">Text messages can take a few minutes to arrive.</p>
+    
+    {% if debugCode %}
+    <div class="govuk-inset-text">
+      <p class="govuk-body"><strong>DEBUG:</strong> Your 2FA code is: <code>{{ debugCode }}</code></p>
+      <p class="govuk-body">This is displayed for testing purposes only.</p>
+    </div>
+    {% endif %}
+
+    <form method="POST" action="/auth/2fa-verify" novalidate>
+      <input type="hidden" name="_csrf" value="{{ csrfToken }}">
+      <input type="hidden" name="email" value="{{ email }}">
+      
+      <div class="govuk-form-group {% if errors.code %}govuk-form-group--error{% endif %}">
+        <label class="govuk-label" for="code">
+          Text message code
+        </label>
+        {% if errors.code %}
+        <p id="code-error" class="govuk-error-message">
+          <span class="govuk-visually-hidden">Error:</span> {{ errors.code }}
+        </p>
+        {% endif %}
+        <input class="govuk-input govuk-input--width-10 {% if errors.code %}govuk-input--error{% endif %}" 
+               id="code" 
+               name="code" 
+               type="text" 
+               inputmode="numeric"
+               pattern="[0-9]*"
+               maxlength="6"
+               value="{{ code or '' }}"
+               {% if errors.code %}aria-describedby="code-error"{% endif %}
+               required>
+      </div>
+
+      <button class="govuk-button" data-module="govuk-button">
+        Continue
+      </button>
+    </form>
+
+    <div class="govuk-body">
+      <p>
+        <a href="/auth/sign-in" class="govuk-link">Not received a text message?</a>
+      </p>
+    </div>
+
+  </div>
+</div>
+{% endblock %} 

@@ -1,0 +1,69 @@
+{% extends "layouts/layout.html" %}
+
+{% set title = "Change your name" %}
+
+{% block beforeContent %}
+<div class="govuk-width-container">
+  <a href="/account" class="govuk-back-link">Back</a>
+</div>
+{% endblock %}
+
+{% block content %}
+<div class="govuk-grid-row">
+  <div class="govuk-grid-column-two-thirds">
+    <h1 class="govuk-heading-l">{{ title }}</h1>
+
+    {% include "partials/_error-summary.html" %}
+
+    <form method="POST" action="/account/change-name" novalidate>
+      <input type="hidden" name="_csrf" value="{{ csrfToken }}">
+
+      <div class="govuk-form-group {% if errors.firstName %}govuk-form-group--error{% endif %}">
+        <label class="govuk-label" for="firstName">
+          First name
+        </label>
+        {% if errors.firstName %}
+        <p id="firstName-error" class="govuk-error-message">
+          <span class="govuk-visually-hidden">Error:</span> {{ errors.firstName }}
+        </p>
+        {% endif %}
+        <input class="govuk-input {% if errors.firstName %}govuk-input--error{% endif %}" 
+               id="firstName" 
+               name="firstName" 
+               type="text" 
+               spellcheck="false"
+               value="{{ firstName or user.firstName }}"
+               {% if errors.firstName %}aria-describedby="firstName-error"{% endif %}
+               required>
+      </div>
+
+      <div class="govuk-form-group {% if errors.lastName %}govuk-form-group--error{% endif %}">
+        <label class="govuk-label" for="lastName">
+          Last name
+        </label>
+        {% if errors.lastName %}
+        <p id="lastName-error" class="govuk-error-message">
+          <span class="govuk-visually-hidden">Error:</span> {{ errors.lastName }}
+        </p>
+        {% endif %}
+        <input class="govuk-input {% if errors.lastName %}govuk-input--error{% endif %}" 
+               id="lastName" 
+               name="lastName" 
+               type="text" 
+               spellcheck="false"
+               value="{{ lastName or user.lastName }}"
+               {% if errors.lastName %}aria-describedby="lastName-error"{% endif %}
+               required>
+      </div>
+
+      <button class="govuk-button" data-module="govuk-button">
+        Save changes
+      </button>
+
+      <p class="govuk-body">
+        <a href="/account" class="govuk-link">Cancel</a>
+      </p>
+    </form>
+  </div>
+</div>
+{% endblock %} 

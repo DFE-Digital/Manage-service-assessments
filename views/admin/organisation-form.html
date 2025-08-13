@@ -1,0 +1,51 @@
+{% extends "layouts/layout.html" %}
+
+{% block pageTitle %}{% if organisation %}Edit{% else %}Add{% endif %} Organisation{% endblock %}
+
+{% block content %}
+    <div class="govuk-grid-row">
+      <div class="govuk-grid-column-two-thirds">
+        {% if organisation %}
+        <div class="govuk-breadcrumbs">
+          <ol class="govuk-breadcrumbs__list">
+            <li class="govuk-breadcrumbs__list-item">
+              <a class="govuk-breadcrumbs__link" href="/admin/organisations">Organisations</a>
+            </li>
+            <li class="govuk-breadcrumbs__list-item">
+              <a class="govuk-breadcrumbs__link" href="/admin/organisations/{{ organisation.id }}">{{ organisation.name }}</a>
+            </li>
+            <li class="govuk-breadcrumbs__list-item" aria-current="page">Edit</li>
+          </ol>
+        </div>
+        {% endif %}
+
+        <h1 class="govuk-heading-l">{% if organisation %}Edit{% else %}Add{% endif %} organisation</h1>
+        
+        <form method="post">
+          <input type="hidden" name="_csrf" value="{{ csrfToken }}">
+          <div class="govuk-form-group">
+            <label class="govuk-label" for="name">
+              Organisation name
+            </label>
+            <input class="govuk-input" id="name" name="name" type="text" value="{{ organisation.name if organisation else '' }}" required>
+          </div>
+
+          <div class="govuk-form-group">
+            <label class="govuk-label" for="domains">
+              Allowed domains
+            </label>
+            <div class="govuk-hint">
+              Enter domain names separated by commas (e.g., education.gov.uk, gov.uk)
+            </div>
+            <textarea class="govuk-textarea" id="domains" name="domains" rows="3">{{ domains if domains else '' }}</textarea>
+          </div>
+
+          <div class="govuk-button-group">
+            <button type="submit" class="govuk-button">{% if organisation %}Update{% else %}Create{% endif %} organisation</button>
+            <a href="{% if organisation %}/admin/organisations/{{ organisation.id }}{% else %}/admin/organisations{% endif %}" class="govuk-button govuk-button--secondary">Cancel</a>
+          </div>
+        </form>
+      </div>
+    </div>
+
+{% endblock %}

@@ -1,0 +1,26 @@
+{% extends "layouts/layout.html" %}
+{% set public = true %}
+{% set path = 'auth/session-expired' %}
+{% set title = 'Session expired' %}
+
+{% block content %}
+<div class="govuk-grid-row">
+  <div class="govuk-grid-column-two-thirds">
+
+    <h1 class="govuk-heading-l">
+      We've signed you out
+    </h1>
+
+    <p class="govuk-body">
+      For security reasons, your session has expired. This can happen if you've been inactive for too long.
+    </p>
+
+    <p class="govuk-body">
+      <a href="/auth/sign-in" class="govuk-link">
+        Sign in again
+      </a>
+    </p>
+
+  </div>
+</div>
+{% endblock %}

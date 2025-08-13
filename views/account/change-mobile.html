@@ -1,0 +1,50 @@
+{% extends "layouts/layout.html" %}
+
+{% set title = "Change your mobile number" %}
+
+{% block beforeContent %}
+<div class="govuk-width-container">
+  <a href="/account" class="govuk-back-link">Back</a>
+</div>
+{% endblock %}
+
+{% block content %}
+<div class="govuk-grid-row">
+  <div class="govuk-grid-column-two-thirds">
+    <h1 class="govuk-heading-l">{{ title }}</h1>
+
+    {% include "partials/_error-summary.html" %}
+
+    <form method="POST" action="/account/change-mobile" novalidate>
+      <input type="hidden" name="_csrf" value="{{ csrfToken }}">
+
+      <div class="govuk-form-group {% if errors.mobileNumber %}govuk-form-group--error{% endif %}">
+        <label class="govuk-label" for="mobileNumber">
+          New mobile number
+        </label>
+        <div class="govuk-hint">This will be used for two-factor authentication</div>
+        {% if errors.mobileNumber %}
+        <p id="mobileNumber-error" class="govuk-error-message">
+          <span class="govuk-visually-hidden">Error:</span> {{ errors.mobileNumber }}
+        </p>
+        {% endif %}
+        <input class="govuk-input {% if errors.mobileNumber %}govuk-input--error{% endif %}" 
+               id="mobileNumber" 
+               name="mobileNumber" 
+               type="tel"
+               value="{{ mobileNumber or '' }}"
+               {% if errors.mobileNumber %}aria-describedby="mobileNumber-error"{% endif %}
+               required>
+      </div>
+
+      <button class="govuk-button" data-module="govuk-button">
+        Save changes
+      </button>
+
+      <p class="govuk-body">
+        <a href="/account" class="govuk-link">Cancel</a>
+      </p>
+    </form>
+  </div>
+</div>
+{% endblock %} 

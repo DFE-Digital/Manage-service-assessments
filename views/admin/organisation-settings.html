@@ -1,0 +1,425 @@
+{% extends "layouts/layout.html" %}
+
+{% block pageTitle %}Department Settings{% endblock %}
+
+{% block head %}
+<style>
+  .connection-status {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+  }
+  
+  .connection-status--success {
+    color: #00703c;
+  }
+  
+  .connection-status--error {
+    color: #d4351c;
+  }
+  
+  .connection-status-icon {
+    width: 16px;
+    height: 16px;
+    border-radius: 50%;
+  }
+  
+  .connection-status-icon--success {
+    background-color: #00703c;
+  }
+  
+  .connection-status-icon--error {
+    background-color: #d4351c;
+  }
+  
+  .modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+    display: none;
+    z-index: 1000;
+  }
+  
+  .modal-content {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background-color: white;
+    padding: 20px;
+    border-radius: 4px;
+    max-width: 600px;
+    width: 90%;
+    max-height: 80vh;
+    overflow-y: auto;
+  }
+</style>
+{% endblock %}
+
+{% block content %}
+    <div class="govuk-grid-row">
+      <div class="govuk-grid-column-one-quarter">
+        <nav class="dfe-vertical-nav govuk-!-margin-top-2" aria-label="Admin navigation">
+          {% if user.isSuperAdmin %}
+            <h2 class="dfe-vertical-nav__section-header">Menu</h2>
+            <ul class="dfe-vertical-nav__section">
+              <li class="dfe-vertical-nav__section-item">
+                <a class="dfe-vertical-nav__link" href="/admin/organisations">
+                  <span class="dfe-vertical-nav__link-text">Organisations</span>
+                </a>
+              </li>
+              <li class="dfe-vertical-nav__section-item">
+                <a class="dfe-vertical-nav__link" href="/admin/assessors">
+                  <span class="dfe-vertical-nav__link-text">Assessors</span>
+                </a>
+              </li>
+              <li class="dfe-vertical-nav__section-item">
+                <a class="dfe-vertical-nav__link" href="/admin/settings">
+                  <span class="dfe-vertical-nav__link-text">Settings</span>
+                </a>
+              </li>
+            </ul>
+          {% endif %}
+          {% if user.isOrganisationAdmin %}
+            <h2 class="dfe-vertical-nav__section-header">Organisation admin</h2>
+            <ul class="dfe-vertical-nav__section">
+              <li class="dfe-vertical-nav__section-item">
+                <a class="dfe-vertical-nav__link" href="/admin/assessments">
+                  <span class="dfe-vertical-nav__link-text">Assessments</span>
+                </a>
+              </li>
+              <li class="dfe-vertical-nav__section-item">
+                <a class="dfe-vertical-nav__link" href="/admin/organisation/assessors">
+                  <span class="dfe-vertical-nav__link-text">Assessors</span>
+                </a>
+              </li>
+              <li class="dfe-vertical-nav__section-item dfe-vertical-nav__section-item--current">
+                <a class="dfe-vertical-nav__link" href="/admin/organisation/settings">
+                  <span class="dfe-vertical-nav__link-text">Settings</span>
+                </a>
+              </li>
+            </ul>
+          {% endif %}
+        </nav>
+      </div>
+      
+      <div class="govuk-grid-column-three-quarters">
+        <h1 class="govuk-heading-l">{{ user.organisation.name }} Settings</h1>
+
+        {% include "partials/_error-summary.html" %}
+
+        <p class="govuk-body">Manage department-specific standards and integrations for {{ user.organisation.name }}.</p>
+
+        <!-- Department Standards Section -->
+        <div class="govuk-summary-card">
+          <div class="govuk-summary-card__title-wrapper">
+            <h2 class="govuk-summary-card__title">Department Standards</h2>
+            <ul class="govuk-summary-card__actions">
+              <li class="govuk-summary-card__action">
+                <a class="govuk-link" href="#" onclick="openModal('addDepartmentStandardModal')">Add standard</a>
+              </li>
+            </ul>
+          </div>
+          <div class="govuk-summary-card__content">
+            <p class="govuk-body">Additional standards specific to {{ user.organisation.name }}.</p>
+            {% if departmentStandards and departmentStandards.length > 0 %}
+              <table class="govuk-table">
+                <thead class="govuk-table__head">
+                  <tr class="govuk-table__row">
+                    <th scope="col" class="govuk-table__header">Reference</th>
+                    <th scope="col" class="govuk-table__header">Title</th>
+                    <th scope="col" class="govuk-table__header">Version</th>
+                    <th scope="col" class="govuk-table__header">Actions</th>
+                  </tr>
+                </thead>
+                <tbody class="govuk-table__body">
+                  {% for standard in departmentStandards %}
+                    <tr class="govuk-table__row">
+                      <td class="govuk-table__cell">{{ standard.reference }}</td>
+                      <td class="govuk-table__cell">
+                        <a href="{{ standard.url }}" class="govuk-link" rel="noopener noreferrer">{{ standard.title }}</a>
+                      </td>
+                      <td class="govuk-table__cell">v{{ standard.version }}</td>
+                      <td class="govuk-table__cell">
+                        <a href="#" class="govuk-link" onclick="openEditDepartmentStandardModal({{ standard.id }}, '{{ standard.title }}', '{{ standard.description }}', '{{ standard.url }}')">Edit</a>
+                      </td>
+                    </tr>
+                  {% endfor %}
+                </tbody>
+              </table>
+            {% else %}
+              <p class="govuk-body">No department standards configured.</p>
+            {% endif %}
+          </div>
+        </div>
+
+        <!-- FIPS Integration Section -->
+        <div class="govuk-summary-card">
+          <div class="govuk-summary-card__title-wrapper">
+            <h2 class="govuk-summary-card__title">FIPS Integration</h2>
+          </div>
+          <div class="govuk-summary-card__content">
+            <p class="govuk-body">Configure integration with the FIPS (Find Information about Public Services) API.</p>
+            
+            {% if departmentSettings %}
+              <dl class="govuk-summary-list">
+                <div class="govuk-summary-list__row">
+                  <dt class="govuk-summary-list__key">Status</dt>
+                  <dd class="govuk-summary-list__value">
+                    {% if departmentSettings.fips_enabled %}
+                      <span class="govuk-tag govuk-tag--green">Enabled</span>
+                    {% else %}
+                      <span class="govuk-tag govuk-tag--grey">Disabled</span>
+                    {% endif %}
+                  </dd>
+                  <dd class="govuk-summary-list__actions">
+                    <a class="govuk-link" href="#" onclick="openModal('fipsSettingsModal')">Configure</a>
+                  </dd>
+                </div>
+                
+                {% if departmentSettings.fips_enabled and departmentSettings.fips_endpoint %}
+                  <div class="govuk-summary-list__row">
+                    <dt class="govuk-summary-list__key">Connection</dt>
+                    <dd class="govuk-summary-list__value">
+                      {% if fipsConnectionStatus %}
+                        {% if fipsConnectionStatus.success %}
+                          <span class="connection-status connection-status--success">
+                            <span class="connection-status-icon connection-status-icon--success"></span>
+                            Connected
+                          </span>
+                        {% else %}
+                          <span class="connection-status connection-status--error">
+                            <span class="connection-status-icon connection-status-icon--error"></span>
+                            Failed: {{ fipsConnectionStatus.message }}
+                          </span>
+                        {% endif %}
+                      {% else %}
+                        <span class="govuk-tag govuk-tag--grey">Not tested</span>
+                      {% endif %}
+                    </dd>
+                    <dd class="govuk-summary-list__actions">
+                      <a class="govuk-link" href="#" onclick="testFipsConnection()">Test connection</a>
+                    </dd>
+                  </div>
+                  
+                  <div class="govuk-summary-list__row">
+                    <dt class="govuk-summary-list__key">Endpoint</dt>
+                    <dd class="govuk-summary-list__value">{{ departmentSettings.fips_endpoint }}</dd>
+                    <dd class="govuk-summary-list__actions"></dd>
+                  </div>
+                {% endif %}
+              </dl>
+            {% endif %}
+          </div>
+        </div>
+      </div>
+    </div>
+
+<!-- Add Department Standard Modal -->
+<div id="addDepartmentStandardModal" class="modal" role="dialog" aria-labelledby="addDepartmentStandardModalTitle" aria-hidden="true">
+  <div class="modal-content">
+    <h2 id="addDepartmentStandardModalTitle" class="govuk-heading-m">Add Department Standard</h2>
+    <form method="POST" action="/admin/organisation/settings/standards">
+      <input type="hidden" name="_csrf" value="{{ csrfToken }}">
+      
+      <div class="govuk-form-group">
+        <label class="govuk-label" for="department-standard-reference">Reference</label>
+        <div class="govuk-hint">A unique reference for this standard (e.g., DfE-1, HMRC-A)</div>
+        <input class="govuk-input govuk-input--width-10" id="department-standard-reference" name="reference" type="text" required>
+      </div>
+      
+      <div class="govuk-form-group">
+        <label class="govuk-label" for="department-standard-title">Title</label>
+        <input class="govuk-input" id="department-standard-title" name="title" type="text" required>
+      </div>
+      
+      <div class="govuk-form-group">
+        <label class="govuk-label" for="department-standard-description">Description</label>
+        <textarea class="govuk-textarea" id="department-standard-description" name="description" rows="4" required></textarea>
+      </div>
+      
+      <div class="govuk-form-group">
+        <label class="govuk-label" for="department-standard-url">URL</label>
+        <input class="govuk-input" id="department-standard-url" name="url" type="url" required>
+      </div>
+      
+      <div class="govuk-button-group">
+        <button type="submit" class="govuk-button">Add Standard</button>
+        <button type="button" class="govuk-button govuk-button--secondary" onclick="closeModal('addDepartmentStandardModal')">Cancel</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- Edit Department Standard Modal -->
+<div id="editDepartmentStandardModal" class="modal" role="dialog" aria-labelledby="editDepartmentStandardModalTitle" aria-hidden="true">
+  <div class="modal-content">
+    <h2 id="editDepartmentStandardModalTitle" class="govuk-heading-m">Edit Department Standard</h2>
+    <form method="POST" id="editDepartmentStandardForm">
+      <input type="hidden" name="_csrf" value="{{ csrfToken }}">
+      
+      <div class="govuk-form-group">
+        <label class="govuk-label" for="edit-department-standard-title">Title</label>
+        <input class="govuk-input" id="edit-department-standard-title" name="title" type="text" required>
+      </div>
+      
+      <div class="govuk-form-group">
+        <label class="govuk-label" for="edit-department-standard-description">Description</label>
+        <textarea class="govuk-textarea" id="edit-department-standard-description" name="description" rows="4" required></textarea>
+      </div>
+      
+      <div class="govuk-form-group">
+        <label class="govuk-label" for="edit-department-standard-url">URL</label>
+        <input class="govuk-input" id="edit-department-standard-url" name="url" type="url" required>
+      </div>
+      
+      <div class="govuk-button-group">
+        <button type="submit" class="govuk-button">Update Standard</button>
+        <button type="button" class="govuk-button govuk-button--secondary" onclick="closeModal('editDepartmentStandardModal')">Cancel</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- FIPS Settings Modal -->
+<div id="fipsSettingsModal" class="modal" role="dialog" aria-labelledby="fipsSettingsModalTitle" aria-hidden="true">
+  <div class="modal-content">
+    <h2 id="fipsSettingsModalTitle" class="govuk-heading-m">FIPS Integration Settings</h2>
+    <form method="POST" action="/admin/organisation/settings">
+      <input type="hidden" name="_csrf" value="{{ csrfToken }}">
+      
+      <div class="govuk-form-group">
+        <fieldset class="govuk-fieldset">
+          <div class="govuk-checkboxes">
+            <div class="govuk-checkboxes__item">
+              <input class="govuk-checkboxes__input" id="fips-enabled" name="fips_enabled" type="checkbox" value="1" {% if departmentSettings and departmentSettings.fips_enabled %}checked{% endif %}>
+              <label class="govuk-label govuk-checkboxes__label" for="fips-enabled">Enable FIPS integration</label>
+            </div>
+          </div>
+        </fieldset>
+      </div>
+      
+      <div class="govuk-form-group">
+        <label class="govuk-label" for="fips-endpoint">FIPS Service Endpoint</label>
+        <div class="govuk-hint">The base URL for your FIPS service API</div>
+        <input class="govuk-input" id="fips-endpoint" name="fips_endpoint" type="url" 
+               value="{% if departmentSettings %}{{ departmentSettings.fips_endpoint }}{% endif %}" 
+               placeholder="https://fips.example.com/api/v1">
+      </div>
+      
+      <div class="govuk-form-group">
+        <label class="govuk-label" for="fips-api-key">API Key</label>
+        <div class="govuk-hint">Your FIPS API authentication key</div>
+        <input class="govuk-input" id="fips-api-key" name="fips_api_key" type="password" 
+               value="{% if departmentSettings %}{{ departmentSettings.fips_api_key }}{% endif %}" 
+               placeholder="Enter API key">
+      </div>
+      
+      <div class="govuk-button-group">
+        <button type="submit" class="govuk-button">Save Settings</button>
+        <button type="button" class="govuk-button govuk-button--secondary" onclick="closeModal('fipsSettingsModal')">Cancel</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<script>
+function openModal(modalId) {
+  const modal = document.getElementById(modalId);
+  modal.style.display = 'block';
+  modal.setAttribute('aria-hidden', 'false');
+  
+  // Focus the first input in the modal
+  const firstInput = modal.querySelector('input, textarea, button');
+  if (firstInput) {
+    firstInput.focus();
+  }
+}
+
+function closeModal(modalId) {
+  const modal = document.getElementById(modalId);
+  modal.style.display = 'none';
+  modal.setAttribute('aria-hidden', 'true');
+}
+
+function openEditDepartmentStandardModal(id, title, description, url) {
+  document.getElementById('editDepartmentStandardForm').action = `/admin/organisation/settings/standards/${id}`;
+  document.getElementById('edit-department-standard-title').value = title;
+  document.getElementById('edit-department-standard-description').value = description;
+  document.getElementById('edit-department-standard-url').value = url;
+  openModal('editDepartmentStandardModal');
+}
+
+async function testFipsConnection() {
+  const connectionElement = document.querySelector('.connection-status');
+  if (connectionElement) {
+    connectionElement.innerHTML = '<span class="govuk-tag govuk-tag--yellow">Testing...</span>';
+  }
+  
+  try {
+    const response = await fetch('/admin/organisation/settings/test-fips-connection', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'X-CSRF-Token': document.querySelector('input[name="_csrf"]').value
+      }
+    });
+    
+    const result = await response.json();
+    
+    if (connectionElement) {
+      if (result.success) {
+        connectionElement.innerHTML = `
+          <span class="connection-status connection-status--success">
+            <span class="connection-status-icon connection-status-icon--success"></span>
+            Connected
+          </span>
+        `;
+      } else {
+        connectionElement.innerHTML = `
+          <span class="connection-status connection-status--error">
+            <span class="connection-status-icon connection-status-icon--error"></span>
+            Failed: ${result.message}
+          </span>
+        `;
+      }
+    }
+  } catch (error) {
+    if (connectionElement) {
+      connectionElement.innerHTML = `
+        <span class="connection-status connection-status--error">
+          <span class="connection-status-icon connection-status-icon--error"></span>
+          Error testing connection
+        </span>
+      `;
+    }
+  }
+}
+
+// Close modal on escape key
+document.addEventListener('keydown', function(event) {
+  if (event.key === 'Escape') {
+    const modals = document.querySelectorAll('.modal');
+    modals.forEach(modal => {
+      if (modal.style.display === 'block') {
+        closeModal(modal.id);
+      }
+    });
+  }
+});
+
+// Close modal when clicking outside
+document.addEventListener('click', function(event) {
+  const modals = document.querySelectorAll('.modal');
+  modals.forEach(modal => {
+    if (event.target === modal) {
+      closeModal(modal.id);
+    }
+  });
+});
+</script>
+
+{% endblock %}

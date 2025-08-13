@@ -1,0 +1,84 @@
+{% extends "layouts/layout.html" %}
+
+{% set public = true %}
+{% set path = 'auth/setup' %} 
+{% set title = 'Complete your account setup' %}
+
+{% block content %}
+<div class="govuk-grid-row">
+  <div class="govuk-grid-column-two-thirds">
+
+    {% include "partials/_error-summary.html" %}
+
+    <h1 class="govuk-heading-l">{{ title }}</h1>
+    
+  
+    
+    <p class="govuk-body">To complete your account setup, please provide your mobile number and create a password.</p>
+    
+    <form method="POST" action="/auth/setup" novalidate>
+      <input type="hidden" name="_csrf" value="{{ csrfToken }}">
+      <input type="hidden" name="token" value="{{ token }}">
+      
+      <div class="govuk-form-group {% if errors.mobileNumber %}govuk-form-group--error{% endif %}">
+        <label class="govuk-label" for="mobileNumber">
+          Mobile number
+        </label>
+        <div class="govuk-hint">This will be used for two-factor authentication</div>
+        {% if errors.mobileNumber %}
+        <p id="mobileNumber-error" class="govuk-error-message">
+          <span class="govuk-visually-hidden">Error:</span> {{ errors.mobileNumber }}
+        </p>
+        {% endif %}
+        <input class="govuk-input {% if errors.mobileNumber %}govuk-input--error{% endif %}" 
+               id="mobileNumber" 
+               name="mobileNumber" 
+               type="tel" 
+               value="{{ mobileNumber or '' }}"
+               {% if errors.mobileNumber %}aria-describedby="mobileNumber-error"{% endif %}
+               required>
+      </div>
+      
+      <div class="govuk-form-group {% if errors.password %}govuk-form-group--error{% endif %}">
+        <label class="govuk-label" for="password">
+          Password
+        </label>
+        <div class="govuk-hint">Must be at least 8 characters and include uppercase, lowercase and numbers</div>
+        {% if errors.password %}
+        <p id="password-error" class="govuk-error-message">
+          <span class="govuk-visually-hidden">Error:</span> {{ errors.password }}
+        </p>
+        {% endif %}
+        <input class="govuk-input {% if errors.password %}govuk-input--error{% endif %}" 
+               id="password" 
+               name="password" 
+               type="password" 
+               {% if errors.password %}aria-describedby="password-error"{% endif %}
+               required>
+      </div>
+      
+      <div class="govuk-form-group {% if errors.confirmPassword %}govuk-form-group--error{% endif %}">
+        <label class="govuk-label" for="confirmPassword">
+          Confirm password
+        </label>
+        {% if errors.confirmPassword %}
+        <p id="confirmPassword-error" class="govuk-error-message">
+          <span class="govuk-visually-hidden">Error:</span> {{ errors.confirmPassword }}
+        </p>
+        {% endif %}
+        <input class="govuk-input {% if errors.confirmPassword %}govuk-input--error{% endif %}" 
+               id="confirmPassword" 
+               name="confirmPassword" 
+               type="password" 
+               {% if errors.confirmPassword %}aria-describedby="confirmPassword-error"{% endif %}
+               required>
+      </div>
+      
+      <button type="submit" class="govuk-button" data-module="govuk-button">
+        Complete Setup
+      </button>
+    </form>
+    
+  </div>
+</div>
+{% endblock %} 

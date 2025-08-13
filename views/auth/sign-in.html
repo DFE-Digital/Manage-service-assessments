@@ -1,0 +1,86 @@
+{% extends "layouts/layout.html" %}
+
+{% set public = true %}
+{% set path = 'auth/sign-in' %}
+{% set title = 'Sign in' %}
+
+{% block content %}
+<div class="govuk-grid-row">
+  <div class="govuk-grid-column-two-thirds">
+
+    {% include "partials/_error-summary.html" %}
+    
+    {% if message == 'password-reset-success' %}
+      <div class="govuk-notification-banner govuk-notification-banner--success" role="alert" aria-labelledby="govuk-notification-banner-title" data-module="govuk-notification-banner">
+        <div class="govuk-notification-banner__header">
+          <h2 class="govuk-notification-banner__title" id="govuk-notification-banner-title">
+            Success
+          </h2>
+        </div>
+        <div class="govuk-notification-banner__content">
+          <p class="govuk-notification-banner__heading">
+            Your password has been reset successfully. Please sign in with your new password.
+          </p>
+        </div>
+      </div>
+    {% endif %}
+    
+    <h1 class="govuk-heading-l">{{ title }}</h1>
+
+    <form method="POST" action="/auth/sign-in" novalidate>
+      <input type="hidden" name="_csrf" value="{{ csrfToken }}">
+      
+      <div class="govuk-form-group {% if errors.email %}govuk-form-group--error{% endif %}">
+        <label class="govuk-label" for="email">
+          Email address
+        </label>
+        {% if errors.email %}
+        <p id="email-error" class="govuk-error-message">
+          <span class="govuk-visually-hidden">Error:</span> {{ errors.email }}
+        </p>
+        {% endif %}
+        <input class="govuk-input {% if errors.email %}govuk-input--error{% endif %}" 
+               id="email" 
+               name="email" 
+               type="email" 
+               spellcheck="false" 
+               value="{{ email or '' }}"
+               {% if errors.email %}aria-describedby="email-error"{% endif %}
+               required>
+      </div>
+
+      <div class="govuk-form-group {% if errors.password %}govuk-form-group--error{% endif %}">
+        <label class="govuk-label" for="password">
+          Password
+        </label>
+        {% if errors.password %}
+        <p id="password-error" class="govuk-error-message">
+          <span class="govuk-visually-hidden">Error:</span> {{ errors.password }}
+        </p>
+        {% endif %}
+        <input class="govuk-input {% if errors.password %}govuk-input--error{% endif %}" 
+               id="password" 
+               name="password" 
+               type="password" 
+               value="{{ password or '' }}"
+               {% if errors.password %}aria-describedby="password-error"{% endif %}
+               required>
+      </div>
+
+      <button class="govuk-button" data-module="govuk-button">
+        Sign in
+      </button>
+    </form>
+
+    <div class="govuk-body">
+      <p>
+        <a href="/auth/forgot-password" class="govuk-link">Forgotten your password?</a>
+      </p>
+      <p>
+        Don't have an account? <a href="/auth/register" class="govuk-link">Create an account</a>
+      </p>
+    </div>
+
+  </div>
+</div>
+{% endblock %} 

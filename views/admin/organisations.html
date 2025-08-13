@@ -1,0 +1,95 @@
+{% extends "layouts/layout.html" %}
+
+{% block pageTitle %}Manage Organisations{% endblock %}
+
+{% block content %}
+    <div class="govuk-grid-row">
+      <div class="govuk-grid-column-one-quarter">
+        <nav class="dfe-vertical-nav govuk-!-margin-top-2" aria-label="Admin navigation">
+          {% if user.isSuperAdmin %}
+            <h2 class="dfe-vertical-nav__section-header">Menu</h2>
+            <ul class="dfe-vertical-nav__section">
+              <li class="dfe-vertical-nav__section-item dfe-vertical-nav__section-item--current">
+                <a class="dfe-vertical-nav__link" href="/admin/organisations">
+                  <span class="dfe-vertical-nav__link-text">Organisations</span>
+                </a>
+              </li>
+              <li class="dfe-vertical-nav__section-item">
+                <a class="dfe-vertical-nav__link" href="/admin/assessors">
+                  <span class="dfe-vertical-nav__link-text">Assessors</span>
+                </a>
+              </li>
+              <li class="dfe-vertical-nav__section-item">
+                <a class="dfe-vertical-nav__link" href="/admin/settings">
+                  <span class="dfe-vertical-nav__link-text">Settings</span>
+                </a>
+              </li>
+            </ul>
+          {% endif %}
+          {% if user.isOrganisationAdmin %}
+            <h2 class="dfe-vertical-nav__section-header">Organisation admin</h2>
+            <ul class="dfe-vertical-nav__section">
+              <li class="dfe-vertical-nav__section-item">
+                <a class="dfe-vertical-nav__link" href="/admin/assessments">
+                  <span class="dfe-vertical-nav__link-text">Assessments</span>
+                </a>
+              </li>
+              <li class="dfe-vertical-nav__section-item">
+                <a class="dfe-vertical-nav__link" href="/admin/organisation/assessors">
+                  <span class="dfe-vertical-nav__link-text">Assessors</span>
+                </a>
+              </li>
+              <li class="dfe-vertical-nav__section-item">
+                <a class="dfe-vertical-nav__link" href="/admin/organisation/settings">
+                  <span class="dfe-vertical-nav__link-text">Settings</span>
+                </a>
+              </li>
+            </ul>
+          {% endif %}
+        </nav>
+      </div>
+      
+      <div class="govuk-grid-column-three-quarters">
+        <h1 class="govuk-heading-l">Manage organisations</h1>
+
+        {% if organisations and organisations.length > 0 %}
+        <div class="govuk-summary-card">
+          <div class="govuk-summary-card__title-wrapper">
+            <h2 class="govuk-summary-card__title">
+              Organisations
+            </h2>
+            <ul class="govuk-summary-card__actions">
+              <li class="govuk-summary-card__action">
+                <a class="govuk-link" href="/admin/organisations/add">Add organisation</a>
+              </li>
+            </ul>
+          </div>
+          <div class="govuk-summary-card__content">
+          <table class="govuk-table">
+            <thead class="govuk-table__head">
+              <tr class="govuk-table__row">
+                <th scope="col" class="govuk-table__header">Name</th>
+                <th scope="col" class="govuk-table__header">Domains</th>
+                <th scope="col" class="govuk-table__header">Admins</th>
+              </tr>
+            </thead>
+            <tbody class="govuk-table__body">
+              {% for org in organisations %}
+                <tr class="govuk-table__row">
+                  <td class="govuk-table__cell"><a href="/admin/organisations/{{ org.id }}" class="govuk-link">{{ org.name }}</a></td>
+                  <td class="govuk-table__cell">{{ org.domain_count }}</td>
+                  <td class="govuk-table__cell">{{ org.admin_count }}</td>
+                  
+                </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+          </div>
+          </div>
+        {% else %}
+          <p class="govuk-body">No organisations found.</p>
+        {% endif %}
+      </div>
+    </div>
+
+{% endblock %}

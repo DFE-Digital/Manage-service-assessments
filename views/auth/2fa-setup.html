@@ -1,0 +1,54 @@
+{% extends "layouts/layout.html" %}
+
+{% set public = true %}
+{% set path = 'auth/2fa-setup' %}
+{% set title = 'Two-factor authentication setup' %}
+
+{% block content %}
+<div class="govuk-grid-row">
+  <div class="govuk-grid-column-two-thirds">
+
+    {% include "partials/_error-summary.html" %}
+    
+    <h1 class="govuk-heading-l">Two-factor authentication setup</h1>
+    
+    <p class="govuk-body">Enter your email address to set up two-factor authentication for your account.</p>
+    
+ 
+
+    <form method="POST" action="/auth/2fa-setup" novalidate>
+      <input type="hidden" name="_csrf" value="{{ csrfToken }}">
+      
+      <div class="govuk-form-group {% if errors.email %}govuk-form-group--error{% endif %}">
+        <label class="govuk-label" for="email">
+          Email address
+        </label>
+        {% if errors.email %}
+        <p id="email-error" class="govuk-error-message">
+          <span class="govuk-visually-hidden">Error:</span> {{ errors.email }}
+        </p>
+        {% endif %}
+        <input class="govuk-input {% if errors.email %}govuk-input--error{% endif %}" 
+               id="email" 
+               name="email" 
+               type="email" 
+               spellcheck="false" 
+               value="{{ email or '' }}"
+               {% if errors.email %}aria-describedby="email-error"{% endif %}
+               required>
+      </div>
+
+      <button class="govuk-button" data-module="govuk-button">
+        Continue
+      </button>
+    </form>
+
+    <div class="govuk-body">
+      <p>
+        <a href="/auth/sign-in" class="govuk-link">Back to sign in</a>
+      </p>
+    </div>
+
+  </div>
+</div>
+{% endblock %} 

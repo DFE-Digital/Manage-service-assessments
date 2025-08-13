@@ -1,0 +1,51 @@
+{% extends "layouts/layout.html" %}
+
+{% set title = "Change your email address" %}
+
+{% block beforeContent %}
+<div class="govuk-width-container">
+  <a href="/account" class="govuk-back-link">Back</a>
+</div>
+{% endblock %}
+
+{% block content %}
+<div class="govuk-grid-row">
+  <div class="govuk-grid-column-two-thirds">
+    <h1 class="govuk-heading-l">{{ title }}</h1>
+
+    {% include "partials/_error-summary.html" %}
+
+    <form method="POST" action="/account/change-email" novalidate>
+      <input type="hidden" name="_csrf" value="{{ csrfToken }}">
+
+      <div class="govuk-form-group {% if errors.email %}govuk-form-group--error{% endif %}">
+        <label class="govuk-label" for="email">
+          New email address
+        </label>
+        <div class="govuk-hint">Must be from a public sector organisation</div>
+        {% if errors.email %}
+        <p id="email-error" class="govuk-error-message">
+          <span class="govuk-visually-hidden">Error:</span> {{ errors.email }}
+        </p>
+        {% endif %}
+        <input class="govuk-input {% if errors.email %}govuk-input--error{% endif %}" 
+               id="email" 
+               name="email" 
+               type="email" 
+               spellcheck="false"
+               value="{{ email or '' }}"
+               {% if errors.email %}aria-describedby="email-error"{% endif %}
+               required>
+      </div>
+
+      <button class="govuk-button" data-module="govuk-button">
+        Save changes
+      </button>
+
+      <p class="govuk-body">
+        <a href="/account" class="govuk-link">Cancel</a>
+      </p>
+    </form>
+  </div>
+</div>
+{% endblock %} 

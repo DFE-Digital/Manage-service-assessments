@@ -1,0 +1,422 @@
+{% extends "layouts/layout.html" %}
+
+{% block pageTitle %}Manage {{ organisation.name }} Admins{% endblock %}
+
+{% block head %}
+<style>
+  .govuk-modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 1000;
+  }
+  
+  .govuk-modal__overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+  }
+  
+  .govuk-modal__content {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background-color: white;
+    padding: 2rem;
+    border-radius: 4px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    max-width: 500px;
+    width: 90%;
+  }
+  
+  .govuk-modal__header {
+    margin-bottom: 1.5rem;
+  }
+  
+  .govuk-modal__body {
+    margin-bottom: 2rem;
+  }
+  
+  .govuk-modal__footer {
+    border-top: 1px solid #b1b4b6;
+    padding-top: 1.5rem;
+  }
+  
+  .govuk-visually-hidden {
+    position: absolute !important;
+    width: 1px !important;
+    height: 1px !important;
+    padding: 0 !important;
+    margin: -1px !important;
+    overflow: hidden !important;
+    clip: rect(0, 0, 0, 0) !important;
+    white-space: nowrap !important;
+    border: 0 !important;
+  }
+  
+  .govuk-visually-hidden-focusable:focus {
+    position: static !important;
+    width: auto !important;
+    height: auto !important;
+    padding: inherit !important;
+    margin: inherit !important;
+    overflow: visible !important;
+    clip: auto !important;
+    white-space: normal !important;
+  }
+  
+  .govuk-skip-link {
+    background: #0b0c0c;
+    color: #ffffff;
+    font-family: "GDS Transport", arial, sans-serif;
+    font-size: 14px;
+    font-size: 0.875rem;
+    line-height: 1.14286;
+    padding: 10px 15px;
+    text-decoration: none;
+    display: block;
+    text-align: center;
+  }
+  
+  .govuk-skip-link:hover {
+    color: #ffffff;
+    text-decoration: underline;
+  }
+</style>
+{% endblock %}
+
+{% block content %}
+    <div class="govuk-grid-row">
+      <div class="govuk-grid-column-one-quarter">
+        <nav class="dfe-vertical-nav govuk-!-margin-top-2" aria-label="Admin navigation">
+          <a href="/admin/organisations" class="govuk-back-link govuk-!-margin-top-0 govuk-!-margin-bottom-9">Back to organisations</a>
+          
+          {% if user.isSuperAdmin %}
+            <h2 class="dfe-vertical-nav__section-header">Menu</h2>
+            <ul class="dfe-vertical-nav__section">
+              <li class="dfe-vertical-nav__section-item dfe-vertical-nav__section-item--current">
+                <a class="dfe-vertical-nav__link" href="/admin/organisations">
+                  <span class="dfe-vertical-nav__link-text">Organisations</span>
+                </a>
+              </li>
+              <li class="dfe-vertical-nav__section-item">
+                <a class="dfe-vertical-nav__link" href="/admin/assessors">
+                  <span class="dfe-vertical-nav__link-text">Assessors</span>
+                </a>
+              </li>
+              <li class="dfe-vertical-nav__section-item">
+                <a class="dfe-vertical-nav__link" href="/admin/organisation/settings">
+                  <span class="dfe-vertical-nav__link-text">Settings</span>
+                </a>
+              </li>
+            </ul>
+          {% endif %}
+          {% if user.isOrganisationAdmin %}
+            <h2 class="dfe-vertical-nav__section-header">Organisation admin</h2>
+            <ul class="dfe-vertical-nav__section">
+              <li class="dfe-vertical-nav__section-item">
+                <a class="dfe-vertical-nav__link" href="/admin/assessments">
+                  <span class="dfe-vertical-nav__link-text">Assessments</span>
+                </a>
+              </li>
+              <li class="dfe-vertical-nav__section-item">
+                <a class="dfe-vertical-nav__link" href="/admin/organisation/assessors">
+                  <span class="dfe-vertical-nav__link-text">Assessors</span>
+                </a>
+              </li>
+              <li class="dfe-vertical-nav__section-item">
+                <a class="dfe-vertical-nav__link" href="/admin/organisation/settings">
+                  <span class="dfe-vertical-nav__link-text">Settings</span>
+                </a>
+              </li>
+            </ul>
+          {% endif %}
+          
+          <h2 class="dfe-vertical-nav__section-header">{{ organisation.name }}</h2>
+          <ul class="dfe-vertical-nav__section">
+            <li class="dfe-vertical-nav__section-item">
+              <a class="dfe-vertical-nav__link" href="/admin/organisations/{{ organisation.id }}">Overview</a>
+            </li>
+            <li class="dfe-vertical-nav__section-item">
+              <a class="dfe-vertical-nav__link" href="/admin/organisations/{{ organisation.id }}/domains">Domains</a>
+            </li>
+            <li class="dfe-vertical-nav__section-item dfe-vertical-nav__section-item--current">
+              <a class="dfe-vertical-nav__link" href="/admin/organisations/{{ organisation.id }}/admins">Admins</a>
+            </li>
+          </ul>
+        </nav>
+      </div>
+      
+      <div class="govuk-grid-column-three-quarters">
+        <span class="govuk-caption-l">{{ organisation.name }}</span>
+        <h1 class="govuk-heading-l">Manage admins</h1>
+        
+        <p class="govuk-body">Organisation admins can manage assessors within this organisation and set cross-government assessor status.</p>
+
+        <!-- Admins List -->
+        <div class="govuk-summary-card">
+          <div class="govuk-summary-card__title-wrapper">
+            <h2 class="govuk-summary-card__title">
+              Admins
+            </h2>
+            <ul class="govuk-summary-card__actions">
+              <li class="govuk-summary-card__action">
+                <a class="govuk-link" href="#" onclick="showAddAdminModal()">Add admin</a>
+              </li>
+            </ul>
+          </div>
+          <div class="govuk-summary-card__content">
+            {% if admins and admins.length > 0 %}
+              <table class="govuk-table">
+                <thead class="govuk-table__head">
+                  <tr class="govuk-table__row">
+                    <th scope="col" class="govuk-table__header">Name</th>
+                    <th scope="col" class="govuk-table__header">Email</th>
+                    <th scope="col" class="govuk-table__header">Actions</th>
+                  </tr>
+                </thead>
+                <tbody class="govuk-table__body">
+                  {% for admin in admins %}
+                    <tr class="govuk-table__row">
+                      <td class="govuk-table__cell">{{ admin.first_name }} {{ admin.last_name }}</td>
+                      <td class="govuk-table__cell">{{ admin.email }}</td>
+                      <td class="govuk-table__cell">
+                        <a href="#" class="govuk-link govuk-link--destructive" onclick="showRemoveAdminModal('{{ admin.id }}', '{{ admin.first_name }} {{ admin.last_name }}', '{{ admin.email }}', '{{ organisation.id }}')">
+                          Remove
+                        </a>
+                      </td>
+                    </tr>
+                  {% endfor %}
+                </tbody>
+              </table>
+            {% else %}
+              <p class="govuk-body">No admins found for this organisation.</p>
+            {% endif %}
+          </div>
+        </div>
+
+      
+      </div>
+    </div>
+
+    <!-- Add Admin Modal -->
+    <div class="govuk-modal" id="addAdminModal" style="display: none;" role="dialog" aria-labelledby="addAdminTitle" aria-describedby="addAdminDescription" aria-modal="true">
+      <div class="govuk-modal__overlay" onclick="hideAddAdminModal()" tabindex="-1"></div>
+      <div class="govuk-modal__content" role="document">
+        <a href="#addAdminTitle" class="govuk-skip-link govuk-visually-hidden-focusable">Skip to modal content</a>
+        <div class="govuk-modal__header">
+          <h2 class="govuk-heading-m" id="addAdminTitle">Add Admin</h2>
+        </div>
+        <div class="govuk-modal__body">
+          <p class="govuk-body" id="addAdminDescription">Add a new admin to manage assessors within this organisation.</p>
+          <form method="post" id="addAdminForm" action="/admin/organisations/{{ organisation.id }}/admins/add">
+            <input type="hidden" name="_csrf" value="{{ csrfToken }}">
+            
+            <div class="govuk-form-group">
+              <label class="govuk-label" for="email">
+                Email address
+              </label>
+              <div class="govuk-hint" id="email-hint">
+                Enter the email address of the user you want to make an admin
+              </div>
+              <input class="govuk-input" id="email" name="email" type="email" required aria-describedby="email-hint" aria-label="Email address">
+            </div>
+            
+
+          </form>
+        </div>
+        <div class="govuk-modal__footer">
+                      <div class="govuk-button-group">
+              <button type="submit" form="addAdminForm" class="govuk-button" id="addAdminSubmit">Add admin</button>
+              <button type="button" class="govuk-button govuk-button--secondary" onclick="hideAddAdminModal()">Cancel</button>
+            </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Remove Admin Modal -->
+    <div class="govuk-modal" id="removeAdminModal" style="display: none;" role="dialog" aria-labelledby="removeAdminTitle" aria-describedby="removeAdminDescription" aria-modal="true">
+      <div class="govuk-modal__overlay" onclick="hideRemoveAdminModal()" tabindex="-1"></div>
+      <div class="govuk-modal__content" role="document">
+        <a href="#removeAdminTitle" class="govuk-skip-link govuk-visually-hidden-focusable">Skip to modal content</a>
+        <div class="govuk-modal__header">
+          <h2 class="govuk-heading-m" id="removeAdminTitle">Remove Admin</h2>
+        </div>
+        <div class="govuk-modal__body">
+          <p class="govuk-body" id="removeAdminDescription">Are you sure you want to remove <strong id="adminToRemove"></strong> (<span id="adminEmailToRemove"></span>) as an admin?</p>
+          <p class="govuk-body">They will no longer be able to manage assessors in this organisation.</p>
+        </div>
+        <div class="govuk-modal__footer">
+          <form method="post" id="removeAdminForm" action="">
+            <input type="hidden" name="_csrf" value="{{ csrfToken }}">
+            <div class="govuk-button-group">
+              <button type="submit" class="govuk-button govuk-button--warning" id="removeAdminSubmit">Remove admin</button>
+              <button type="button" class="govuk-button govuk-button--secondary" onclick="hideRemoveAdminModal()">Cancel</button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      // Store the element that had focus before modal opened
+      let previouslyFocusedElement = null;
+      
+      function showAddAdminModal() {
+        // Store current focus
+        previouslyFocusedElement = document.activeElement;
+        
+        const modal = document.getElementById('addAdminModal');
+        const emailInput = document.getElementById('email');
+        
+        if (!modal || !emailInput) return;
+        
+        emailInput.value = '';
+        modal.style.display = 'block';
+        document.body.style.overflow = 'hidden';
+        
+        // Focus the modal and then the input field
+        modal.focus();
+        emailInput.focus();
+        
+        // Announce to screen readers
+        announceToScreenReader('Add admin modal opened');
+      }
+      
+      function hideAddAdminModal() {
+        document.getElementById('addAdminModal').style.display = 'none';
+        document.body.style.overflow = 'auto';
+        
+        // Restore focus to previously focused element
+        if (previouslyFocusedElement) {
+          previouslyFocusedElement.focus();
+          previouslyFocusedElement = null;
+        }
+        
+        // Announce to screen readers
+        announceToScreenReader('Add admin modal closed');
+      }
+      
+      function showRemoveAdminModal(adminId, adminName, adminEmail, organisationId) {
+        // Store current focus
+        previouslyFocusedElement = document.activeElement;
+        
+        const modal = document.getElementById('removeAdminModal');
+        const adminNameElement = document.getElementById('adminToRemove');
+        const adminEmailElement = document.getElementById('adminEmailToRemove');
+        const form = document.getElementById('removeAdminForm');
+        
+        if (!modal || !adminNameElement || !adminEmailElement || !form) return;
+        
+        adminNameElement.textContent = adminName;
+        adminEmailElement.textContent = adminEmail;
+        form.action = `/admin/organisations/${organisationId}/admins/${adminId}/remove`;
+        modal.style.display = 'block';
+        document.body.style.overflow = 'hidden';
+        
+        // Focus the modal
+        modal.focus();
+        
+        // Announce to screen readers
+        announceToScreenReader('Remove admin modal opened. Admin: ' + adminName);
+      }
+      
+      function hideRemoveAdminModal() {
+        document.getElementById('removeAdminModal').style.display = 'none';
+        document.body.style.overflow = 'auto';
+        
+        // Restore focus to previously focused element
+        if (previouslyFocusedElement) {
+          previouslyFocusedElement.focus();
+          previouslyFocusedElement = null;
+        }
+        
+        // Announce to screen readers
+        announceToScreenReader('Remove admin modal closed');
+      }
+      
+      // Function to announce changes to screen readers
+      function announceToScreenReader(message) {
+        const announcement = document.createElement('div');
+        announcement.setAttribute('aria-live', 'polite');
+        announcement.setAttribute('aria-atomic', 'true');
+        announcement.className = 'govuk-visually-hidden';
+        announcement.textContent = message;
+        
+        document.body.appendChild(announcement);
+        
+        // Remove after announcement
+        setTimeout(() => {
+          document.body.removeChild(announcement);
+        }, 1000);
+      }
+      
+      // Close modal when clicking outside
+      document.addEventListener('click', function(event) {
+        if (event.target.classList.contains('govuk-modal__overlay')) {
+          if (document.getElementById('removeAdminModal').style.display === 'block') {
+            hideRemoveAdminModal();
+          } else if (document.getElementById('addAdminModal').style.display === 'block') {
+            hideAddAdminModal();
+          }
+        }
+      });
+      
+      // Close modal with Escape key and trap focus
+      document.addEventListener('keydown', function(event) {
+        if (event.key === 'Escape') {
+          if (document.getElementById('removeAdminModal').style.display === 'block') {
+            hideRemoveAdminModal();
+          } else if (document.getElementById('addAdminModal').style.display === 'block') {
+            hideAddAdminModal();
+          }
+        }
+        
+        // Trap focus within modals using Tab key
+        if (event.key === 'Tab') {
+          const removeModal = document.getElementById('removeAdminModal');
+          const addModal = document.getElementById('addAdminModal');
+          
+          if (removeModal.style.display === 'block') {
+            trapFocus(event, removeModal);
+          } else if (addModal.style.display === 'block') {
+            trapFocus(event, addModal);
+          }
+        }
+      });
+      
+      // Function to trap focus within a modal
+      function trapFocus(event, modal) {
+        const focusableElements = modal.querySelectorAll(
+          'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'
+        );
+        
+        if (focusableElements.length === 0) return;
+        
+        const firstElement = focusableElements[0];
+        const lastElement = focusableElements[focusableElements.length - 1];
+        
+        if (event.shiftKey) {
+          // Shift + Tab: going backwards
+          if (document.activeElement === firstElement) {
+            event.preventDefault();
+            lastElement.focus();
+          }
+        } else {
+          // Tab: going forwards
+          if (document.activeElement === lastElement) {
+            event.preventDefault();
+            lastElement.focus();
+          }
+        }
+      }
+      
+
+    </script>
+{% endblock %}
